@@ -18,6 +18,7 @@ describe('roomSceneData', () => {
       clockTotalMs: 3_600_000,
       dayLengthMs: 60_000,
       characterCell: { x: 11, y: 7 },
+      placedFurniture: [],
     });
   });
 

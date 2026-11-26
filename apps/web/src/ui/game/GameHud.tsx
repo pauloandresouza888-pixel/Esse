@@ -13,6 +13,8 @@ interface GameHudProps {
   day: number;
   money: number;
   moodPercent: number;
+  /** Dominant emotion (emoji + label), shown next to the mood. */
+  emotion?: { emoji: string; key: string; tone: 'positive' | 'neutral' | 'negative' } | null;
   needs?: Needs;
   /** Needs currently below the critical threshold, worst first. */
   urgentNeeds?: NeedKey[];
@@ -33,6 +35,7 @@ export function GameHud({
   day,
   money,
   moodPercent,
+  emotion = null,
   needs,
   urgentNeeds = [],
   onNeedShortcut,
@@ -71,6 +74,12 @@ export function GameHud({
             </span>
             <span className={styles.moodLabel}>
               {t('play.pedestal')} · {moodPercent}%
+              {emotion ? (
+                <span className={`${styles.emotion} ${styles[`emotion_${emotion.tone}`] ?? ''}`}>
+                  <span aria-hidden="true">{emotion.emoji}</span>
+                  <span>{t(emotion.key)}</span>
+                </span>
+              ) : null}
             </span>
           </div>
         </div>

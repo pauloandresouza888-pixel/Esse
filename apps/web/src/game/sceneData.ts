@@ -5,7 +5,7 @@
  * and the loading screen can all use these types and the factory below without
  * pulling the ~1 MB engine into their bundles.
  */
-import type { Appearance, InteractionId, QualityLevel, Settings } from '@vida/shared';
+import type { Appearance, ExtraPlacement, InteractionId, QualityLevel, Settings } from '@vida/shared';
 
 export interface RoomSceneData {
   appearance: Appearance;
@@ -17,6 +17,8 @@ export interface RoomSceneData {
   dayLengthMs: number;
   /** Where the character stands when the scene boots (grid cell). */
   characterCell: { x: number; y: number };
+  /** Extra furniture bought and placed by the player. */
+  placedFurniture?: ExtraPlacement[];
 }
 
 /** Builds the scene payload from the save, applying quality defaults. */
@@ -27,6 +29,7 @@ export function roomSceneData(
   clockTotalMs: number,
   dayLengthMs: number,
   characterCell: { x: number; y: number } = { x: 11, y: 7 },
+  placedFurniture: ExtraPlacement[] = [],
 ): RoomSceneData {
   return {
     appearance,
@@ -35,6 +38,7 @@ export function roomSceneData(
     clockTotalMs,
     dayLengthMs,
     characterCell,
+    placedFurniture,
   };
 }
 

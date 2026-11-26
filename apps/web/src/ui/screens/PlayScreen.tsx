@@ -6,6 +6,8 @@ import {
   approachCell,
   buildBlockedGrid,
   criticalNeeds,
+  currentEmotion,
+  EMOTION_DEFINITIONS,
   itemForNeed,
   placementForItem,
   readClock,
@@ -31,6 +33,8 @@ import styles from './PlayScreen.module.css';
 
 /** Simulation step: 4 ticks per second is smooth for needs and cheap on battery. */
 const TICK_MS = 250;
+/** How much in-game time passes between two autonomous decisions (~20 min). */
+const THINK_INTERVAL_GAME_MS = 20 * 60_000;
 
 /**
  * Collision grid built once: the house never changes in Phase 1. It is the same
@@ -71,6 +75,8 @@ export function PlayScreen() {
   pausedRef.current = paused;
   const lastActionRef = useRef<string | null>(null);
   const lastTutorialStep = useRef<number>(save?.profile.tutorialStep ?? 0);
+  /** Next in-game minute the character is allowed to think for itself. */
+  const nextThinkAtRef = useRef(0);
 
   const appearance = save?.world.character.appearance;
   const needs = save?.world.needs;
@@ -112,6 +118,25 @@ export function PlayScreen() {
       // Keep the scene in sync with the authoritative clock.
       const latest = useGameStore.getState().save;
       if (latest) handleRef.current?.setClockMs(latest.world.clock.totalMs);
+
+      // Autonomy: every ~20 in-game minutes the character decides what to do.
+      // Doing it inside the tick (instead of a separate timer) keeps the AI in
+      // step with the simulation and means it also runs during offline catch-up.
+      if (latest) {
+        const { world, profile } = latest;
+        if (
+          world.autonomous &&
+          profile.tutorialDone &&
+          !world.action &&
+          world.clock.totalMs >= nextThinkAtRef.current
+        ) {
+          nextThinkAtRef.current = world.clock.totalMs + THINK_INTERVAL_GAME_MS;
+          const decision = useGameStore.getState().think();
+          if (decision && decision.kind === 'interact') {
+            sound.play('tap');
+          }
+        }
+      }
 
       // Tutorial finished?
       const profile = latest?.profile;
@@ -269,6 +294,16 @@ export function PlayScreen() {
   /* ------------------------------------------------------------------ */
 
   const moodPercent = useMemo(() => (needs ? Math.round(wellbeing(needs) * 100) : 72), [needs]);
+  const emotion = useMemo(() => {
+    if (!needs || !save) return null;
+    const active = currentEmotion(needs, save.world.emotions, save.world.clock.totalMs);
+    return {
+      id: active.id,
+      emoji: EMOTION_DEFINITIONS[active.id].emoji,
+      key: `emotions.${active.id}`,
+      tone: EMOTION_DEFINITIONS[active.id].tone,
+    };
+  }, [needs, save]);
   const urgency = useMemo(() => (needs ? criticalNeeds(needs) : []), [needs]);
   const progress = action && save ? actionProgress(action, save.world.clock.totalMs) : 0;
   const suggested = tutorialStep?.interactionId ?? null;
@@ -315,6 +350,7 @@ export function PlayScreen() {
           clockTotalMs={save.world.clock.totalMs}
           dayLengthMs={save.world.clock.dayLengthMs}
           characterCell={save.world.position ?? { x: 11, y: 7 }}
+          placedFurniture={save.world.house.placed ?? []}
           paused={paused || !ready}
           onReady={handleReady}
           onObjectTap={handleObjectTap}
@@ -330,6 +366,7 @@ export function PlayScreen() {
         day={clock?.day ?? 1}
         money={save.world.money}
         moodPercent={moodPercent}
+        emotion={emotion}
         needs={needs}
         portrait={<CharacterPortrait appearance={appearance} name={save.world.character.name} />}
         urgentNeeds={urgency}

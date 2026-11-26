@@ -76,21 +76,23 @@ começar a Fase 3 com a Fase 1 pela metade.
 
 ---
 
-## Fase 2 — Vida e IA
+## Fase 2 — Vida e IA ✅ implementada
 
 **Entregas**
 - Utility AI autônoma (pontua ações por necessidade, traço, humor, hora e objetivo).
 - Emoções e memórias com efeito temporário no humor.
-- 2 carreiras com níveis, salário, turno e faltas; dinheiro e loja básica.
-- Modo construção simples (grade 1 m, paredes/pisos, 20 móveis, limite 200 itens).
-- Bairro com 3 locais e 5 NPCs com rotina.
+- 5 carreiras com níveis, salário, turno e faltas; dinheiro e loja básica.
+- Modo construção simples em grade 22×16 (20 itens do catálogo, compra/inventário/colocação/remoção, limite 200 extras colocados).
+- Bairro com 3 locais e 5 NPCs com rotina horária determinística.
 - Relacionamentos base (amizade/romance) entre personagens locais.
 
-**Critérios de aceite**
-- IA escolhe comer quando fome < 25 e não escolhe dormir às 15h com energia cheia.
-- Comprar móvel debita moedas, entra no inventário e pode ser colocado.
-- Promoção de carreira aumenta salário e bloqueia compras acima do saldo.
-- Testes da IA com sementes fixas (determinísticos).
+**Critérios de aceite — verificados em testes**
+- ✅ IA escolhe comer quando fome < 25 e não escolhe dormir às 15h com energia cheia (`ai-seeds.test.ts`).
+- ✅ Comprar móvel debita moedas, entra no inventário e pode ser colocado (`building.test.ts`, `StoreScreen.test.tsx`).
+- ✅ Promoção aumenta salário e compras acima do saldo são bloqueadas (`ai.test.ts`, `gameStore.test.ts`).
+- ✅ Testes determinísticos da IA com sementes fixas (`ai-seeds.test.ts`).
+- ✅ Rotinas dos 5 NPCs, 3 lugares e relações locais persistidas (`neighborhood.test.ts`, testes da tela e store).
+- ✅ `pnpm check`: typecheck, 169 testes totais e build de produção.
 
 ---
 

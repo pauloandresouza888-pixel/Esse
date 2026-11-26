@@ -12,6 +12,7 @@ import { useMoodLine } from '@/ui/hooks/useMoodLine';
 import { relativeTimeKey } from '@/platform/time';
 import { routes } from '@/app/router';
 import styles from './MenuScreen.module.css';
+import { publicUrl } from '@/platform/publicUrl';
 
 /**
  * Main menu.
@@ -50,6 +51,27 @@ export function MenuScreen() {
       onClick: () => navigate(`${routes.creator}?novo=1`),
     },
     {
+      key: 'career',
+      icon: 'bag',
+      label: t('menu.career'),
+      tone: 'lilac',
+      onClick: () => navigate(routes.career),
+    },
+    {
+      key: 'store',
+      icon: 'grid',
+      label: t('menu.store'),
+      tone: 'mint',
+      onClick: () => navigate(routes.store),
+    },
+    {
+      key: 'neighborhood',
+      icon: 'map',
+      label: t('menu.neighborhood'),
+      tone: 'sun',
+      onClick: () => navigate(routes.neighborhood),
+    },
+    {
       key: 'friends',
       icon: 'heart',
       label: t('menu.friends'),
@@ -67,7 +89,7 @@ export function MenuScreen() {
       key: 'about',
       icon: 'info',
       label: t('menu.about'),
-      tone: 'lilac',
+      tone: 'honey',
       onClick: () => setAboutOpen(true),
     },
   ];
@@ -77,7 +99,7 @@ export function MenuScreen() {
       <header className={styles.header}>
         <img
           className={styles.logo}
-          src="/brand/logo-full.svg"
+          src={publicUrl('brand/logo-full.svg')}
           alt={t('a11y.logo')}
           width={420}
           height={300}
@@ -152,7 +174,7 @@ export function MenuScreen() {
 
       <Sheet open={aboutOpen} title={t('menu.about')} onClose={() => setAboutOpen(false)}>
         <div className={styles.about}>
-          <img src="/brand/logo-mark.svg" alt="" width={80} height={80} />
+          <img src={publicUrl('brand/logo-mark.svg')} alt="" width={80} height={80} />
           <h3 className={styles.aboutTitle}>{GAME_BRAND.name}</h3>
           <p className={styles.aboutBody}>{t('settings.aboutText')}</p>
           <p className={styles.aboutMeta}>{t('settings.credits')}</p>

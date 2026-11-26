@@ -52,7 +52,10 @@
     "resetDone": "Progress erased. A new profile was created.",
     "createCharacter": "Create character",
     "toastNewGameReady": "Create your character and start a new story!",
-    "tutorialResume": "Tutorial in progress"
+    "tutorialResume": "Tutorial in progress",
+    "career": "Career",
+    "store": "Store & build",
+    "neighborhood": "Neighborhood"
   },
   "cards": {
     "houseTitle": "Your home",
@@ -104,7 +107,8 @@
       "accessibility": "Accessibility",
       "language": "Language",
       "data": "Data",
-      "about": "About"
+      "about": "About",
+      "gameplay": "Gameplay"
     },
     "language": "Language",
     "languages": {
@@ -153,7 +157,9 @@
       "short": "12 min",
       "normal": "24 min",
       "long": "48 min"
-    }
+    },
+    "autonomous": "Character acts on its own",
+    "autonomousHint": "When on, they eat, shower and sleep by themselves. Turn off to control everything."
   },
   "friends": {
     "title": "Friends",
@@ -232,7 +238,7 @@
   "careers": {
     "chef": "Chef",
     "programmer": "Programmer",
-    "artist": "Painter",
+    "artist": "Visual artist",
     "mechanic": "Mechanic",
     "clerk": "Clerk"
   },
@@ -287,7 +293,11 @@
     "desk": "Desk",
     "stove": "Stove",
     "sink": "Sink",
-    "lamp": "Floor lamp"
+    "lamp": "Floor lamp",
+    "piano": "Piano",
+    "treadmill": "Treadmill",
+    "mirror": "Mirror",
+    "bench": "Bench"
   },
   "models": {
     "money": "Coins",
@@ -522,6 +532,125 @@
       "shower": "A shower restores hygiene. Tap the shower, then \"Take a shower\".",
       "toilet": "A low bladder hurts your mood. Use the toilet to fix it.",
       "sleep": "Sleep restores energy and moves time forward. Open the bed and pick \"Sleep\"."
+    }
+  },
+  "career": {
+    "title": "Career and skills",
+    "tabJob": "My job",
+    "tabOffers": "Offers",
+    "currentJob": "Current job",
+    "level": "Level {{level}} of {{max}}",
+    "salary": "$ {{amount}} per shift",
+    "onShift": "On shift",
+    "offShift": "Off shift",
+    "performance": "Performance",
+    "performanceHint": "Every worked shift raises performance. At 100% you are promoted and the salary goes up.",
+    "shiftWindow": "Shift from {{start}}:00 to {{end}}:00 (game time).",
+    "workNow": "Work now",
+    "waitShift": "Outside the shift window",
+    "skipShift": "Skip the shift",
+    "skipShiftHint": "Skipping costs performance, but never demotes you.",
+    "noJobTitle": "No job yet",
+    "noJobHint": "Pick an offer to earn money and train a skill.",
+    "seeOffers": "See offers",
+    "offerLine": "$ {{amount}} at level 1 · {{hours}} h shift starting at {{start}}:00.",
+    "trains": "Trains {{skill}}",
+    "apply": "Apply",
+    "current": "Current job",
+    "hired": "New job: {{career}}!",
+    "shiftPaid": "Shift done: +$ {{amount}}",
+    "promoted": "Promotion! You are now level {{level}}.",
+    "missed": "You skipped the shift. Performance dropped.",
+    "skillsTitle": "Skills",
+    "skillsHint": "Skills grow by using the right furniture and speed up promotions.",
+    "levelShort": "Lv {{level}}"
+  },
+  "emotions": {
+    "happy": "Happy",
+    "content": "Content",
+    "energized": "Energized",
+    "tired": "Tired",
+    "stressed": "Stressed",
+    "sad": "Sad",
+    "angry": "Angry",
+    "sick": "Under the weather",
+    "inspired": "Inspired",
+    "cozy": "Cozy"
+  },
+  "store": {
+    "title": "Store & build",
+    "balance": "Balance",
+    "tabStore": "Store",
+    "tabBuild": "Build",
+    "buy": "Buy",
+    "place": "Place",
+    "remove": "Store",
+    "catalog": "Available furniture",
+    "categories": {
+      "all": "All",
+      "furniture": "Furniture",
+      "appliance": "Appliances",
+      "decor": "Decor",
+      "electronics": "Electronics",
+      "outdoor": "Outdoor"
+    },
+    "price": "🪙 {{amount}}",
+    "quantity": "{{count}} in inventory",
+    "emptyInventory": "Your inventory is empty. Buy something from the store first.",
+    "buildHint": "Choose an inventory item to place it automatically in a free spot in your home.",
+    "placedTitle": "In your home",
+    "location": "Spot {{x}}, {{y}}",
+    "seeRoom": "View home",
+    "bought": "{{item}} bought and added to your inventory.",
+    "placed": "{{item}} placed in your home!",
+    "notEnough": "You do not have enough coins for this purchase.",
+    "noSpace": "There is no free space for this item. Store a piece of furniture and try again."
+  },
+  "neighborhood": {
+    "title": "Aurora neighborhood",
+    "gameTime": "Game time",
+    "intro": "Explore the neighborhood and meet whoever is around. Everyone follows their own daily routine.",
+    "locationsTitle": "Neighborhood places",
+    "locations": {
+      "plaza": "Mango Tree Plaza",
+      "cafe": "Sweet Spot Café",
+      "park": "Flower Garden"
+    },
+    "locationDescriptions": {
+      "plaza": "A sunny gathering spot with shady benches.",
+      "cafe": "A cozy café that always smells of fresh bread.",
+      "park": "A quiet corner for a stroll and a chat."
+    },
+    "peopleCount": "{{count}} nearby",
+    "emptyPlace": "Nobody is here right now. Try another place or come back later.",
+    "friendship": "Friendship",
+    "romance": "Romance",
+    "talk": "Chat",
+    "flirt": "Flirt",
+    "talked": "That was a nice chat! Friendship: {{friendship}}.",
+    "flirted": "A sweet flirt! Romance: {{romance}}.",
+    "returnHome": "Return home",
+    "npcs": {
+      "mia": {
+        "name": "Mia",
+        "description": "A curious barista who loves stories and plants."
+      },
+      "leo": {
+        "name": "Leo",
+        "description": "A laid-back musician with a new tune every day."
+      },
+      "bia": {
+        "name": "Bia",
+        "description": "A lively illustrator who knows every corner of town."
+      },
+      "caio": {
+        "name": "Caio",
+        "description": "A kind cook who loves a long coffee break."
+      },
+      "noah": {
+        "name": "Noah",
+        "description": "An observant photographer who loves the outdoors."
+      }
     }
   }
 }

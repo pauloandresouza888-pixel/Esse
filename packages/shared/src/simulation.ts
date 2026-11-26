@@ -16,6 +16,15 @@
 import { GAME_DAY_MS, realMsToGameMs, type GameClock } from './clock';
 import { itemById, type InteractionId } from './content';
 import {
+  applyEmotionMood,
+  currentEmotion,
+  emotionForInteraction,
+  remember,
+  type ActiveEmotion,
+  type EmotionId,
+  type Memory,
+} from './emotions';
+import {
   clampNeed,
   criticalNeeds,
   decayRate,
@@ -51,19 +60,33 @@ export interface ActiveAction {
   effects: Partial<Record<NeedKey, number>>;
 }
 
-/** Minimal shape the simulation needs; `WorldState` satisfies it. */
+/**
+ * Minimal shape the simulation needs; `WorldState` satisfies it.
+ *
+ * `emotions` and `memories` are optional so Phase 1 saves (and simple tests)
+ * keep working without them: an absent list behaves like "no emotion".
+ */
 export interface SimWorld {
   clock: GameClock;
   needs: Needs;
   action: ActiveAction | null;
+  emotions?: ActiveEmotion[];
+  memories?: Memory[];
 }
 
 export type SimEvent =
   | { type: 'action-started'; itemId: string; interactionId: InteractionId }
-  | { type: 'action-completed'; itemId: string; interactionId: InteractionId; wokeReason?: WakeReason }
+  | {
+      type: 'action-completed';
+      itemId: string;
+      interactionId: InteractionId;
+      wokeReason?: WakeReason;
+      emotion?: EmotionId | null;
+    }
   | { type: 'action-cancelled'; itemId: string; interactionId: InteractionId }
   | { type: 'need-critical'; need: NeedKey }
-  | { type: 'day-changed'; day: number };
+  | { type: 'day-changed'; day: number }
+  | { type: 'emotion-changed'; emotion: EmotionId };
 
 /** In-game duration of an interaction, or null when the catalog has none. */
 export function actionDurationMs(itemId: string, interactionId: InteractionId): number | null {
@@ -87,13 +110,12 @@ export function collectEffects(
   return totals;
 }
 
-/** Interactions the catalog offers for an item (primary action first). */
-export function interactionsFor(itemId: string): InteractionId[] {
-  const item = itemById(itemId);
-  if (!item) return [];
-  const list = [item.primaryAction, ...(item.actions ?? [])];
-  return [...new Set(list)];
-}
+/**
+ * Interactions the catalog offers for an item (primary action first).
+ * The implementation lives in `content.ts` (no circular imports); it is
+ * re-exported here because Phase 1 code imports it from the simulation module.
+ */
+export { interactionsFor } from './content';
 
 /**
  * Starts an interaction. Returns null when the catalog does not define a
@@ -184,7 +206,16 @@ export function advanceWorld<W extends SimWorld>(
     needs[key] = clampNeed(needs[key] - delta);
   }
 
+  // Emotions colour the mood on top of the need decay.
+  const emotions = world.emotions ?? [];
+  const memories = world.memories ?? [];
+  const moodWithEmotions = applyEmotionMood(needs, emotions, after, gameHours);
+  needs.mood = moodWithEmotions.mood;
+  const emotionBefore = currentEmotion(world.needs, emotions, before).id;
+
   let nextAction: ActiveAction | null = action;
+  let nextEmotions = emotions;
+  let nextMemories = memories;
   if (action) {
     const endsAt = action.startedAtMs + action.durationMs;
     let wokeReason: WakeReason | undefined;
@@ -197,11 +228,23 @@ export function advanceWorld<W extends SimWorld>(
     }
     if (wokeReason) {
       nextAction = null;
+      const emotion = emotionForInteraction(action.interactionId);
+      // A finished action leaves a memory (and often an emotion behind it).
+      const memory: Memory = {
+        interactionId: action.interactionId,
+        atMs: endsAt,
+        mood: 0,
+        emotion: emotion ?? undefined,
+      };
+      const remembered = remember(nextMemories, nextEmotions, memory, endsAt, world.clock.dayLengthMs);
+      nextMemories = remembered.memories;
+      nextEmotions = remembered.emotions;
       events.push({
         type: 'action-completed',
         itemId: action.itemId,
         interactionId: action.interactionId,
         wokeReason,
+        emotion,
       });
     }
   }
@@ -216,7 +259,16 @@ export function advanceWorld<W extends SimWorld>(
   const dayAfter = Math.floor(after / GAME_DAY_MS) + 1;
   if (dayAfter !== dayBefore) events.push({ type: 'day-changed', day: dayAfter });
 
-  return { world: { ...world, clock, needs, action: nextAction }, events };
+  // Tell the UI when the (dominant) emotion flips, so it can bubble it up.
+  const emotionAfter = currentEmotion(needs, nextEmotions, after).id;
+  if (emotionAfter !== emotionBefore && events.every((event) => event.type !== 'action-completed')) {
+    events.push({ type: 'emotion-changed', emotion: emotionAfter });
+  }
+
+  return {
+    world: { ...world, clock, needs, action: nextAction, emotions: nextEmotions, memories: nextMemories },
+    events,
+  };
 }
 
 /**

@@ -1,0 +1,62 @@
+name: Build e GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - arena/14e72dea-esse
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configurar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.23.0
+          run_install: false
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+      - name: Verificar tipos, testes e build
+        run: pnpm check
+      - name: Preparar fallback de rotas do SPA
+        run: cp apps/web/dist/index.html apps/web/dist/404.html
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Enviar artefato
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/dist
+
+  deploy:
+    # The repository's protected github-pages environment only allows main.
+    # Feature branches still run the full build/test job; publishing happens
+    # after their changes are merged through the normal review path.
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4

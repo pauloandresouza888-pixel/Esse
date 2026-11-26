@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Appearance, InteractionId, QualityLevel, Settings } from '@vida/shared';
+import type { Appearance, ExtraPlacement, InteractionId, QualityLevel, Settings } from '@vida/shared';
 import type { ClockSnapshot, ObjectTapPayload } from './sceneData';
 import { roomSceneData } from './sceneData';
 import type { GameHandle } from './mount';
@@ -13,6 +13,7 @@ export interface GameCanvasProps {
   clockTotalMs: number;
   dayLengthMs: number;
   characterCell: { x: number; y: number };
+  placedFurniture?: ExtraPlacement[];
   /** When true the simulation is paused (pause button). */
   paused?: boolean;
   onReady?: (handle: GameHandle) => void;
@@ -43,6 +44,7 @@ export function GameCanvas({
   clockTotalMs,
   dayLengthMs,
   characterCell,
+  placedFurniture = [],
   paused = false,
   onReady,
   onObjectTap,
@@ -94,7 +96,7 @@ export function GameCanvas({
         if (cancelled) return;
         const handle = await mountGame(
           container,
-          roomSceneData(appearance, quality, settings, clockTotalMs, dayLengthMs, characterCell),
+          roomSceneData(appearance, quality, settings, clockTotalMs, dayLengthMs, characterCell, placedFurniture),
         );
         if (cancelled) {
           handle.destroy();

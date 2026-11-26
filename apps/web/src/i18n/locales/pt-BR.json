@@ -52,7 +52,10 @@
     "resetDone": "Progresso apagado. Um novo perfil foi criado.",
     "createCharacter": "Criar personagem",
     "toastNewGameReady": "Crie seu personagem e comece uma nova história!",
-    "tutorialResume": "Tutorial em andamento"
+    "tutorialResume": "Tutorial em andamento",
+    "career": "Carreira",
+    "store": "Loja e construção",
+    "neighborhood": "Bairro"
   },
   "cards": {
     "houseTitle": "Sua casa",
@@ -104,7 +107,8 @@
       "accessibility": "Acessibilidade",
       "language": "Idioma",
       "data": "Dados",
-      "about": "Sobre"
+      "about": "Sobre",
+      "gameplay": "Jogo"
     },
     "language": "Idioma",
     "languages": {
@@ -153,7 +157,9 @@
       "short": "12 min",
       "normal": "24 min",
       "long": "48 min"
-    }
+    },
+    "autonomous": "Personagem age sozinho",
+    "autonomousHint": "Quando ligado, ele come, toma banho e dorme por conta própria. Desligue para controlar tudo."
   },
   "friends": {
     "title": "Amigos",
@@ -287,7 +293,11 @@
     "desk": "Mesa de estudo",
     "stove": "Fogão",
     "sink": "Pia",
-    "lamp": "Luminária"
+    "lamp": "Luminária",
+    "piano": "Piano",
+    "treadmill": "Esteira",
+    "mirror": "Espelho",
+    "bench": "Banco"
   },
   "models": {
     "money": "Moedas",
@@ -522,6 +532,125 @@
       "shower": "Um banho restaura a higiene. Toque no chuveiro e depois em \"Tomar banho\".",
       "toilet": "A bexiga baixa o humor. Use o banheiro para resolver isso.",
       "sleep": "Dormir recupera a energia e passa o tempo. Abra a cama e escolha \"Dormir\"."
+    }
+  },
+  "career": {
+    "title": "Carreira e habilidades",
+    "tabJob": "Meu emprego",
+    "tabOffers": "Vagas",
+    "currentJob": "Emprego atual",
+    "level": "Nível {{level}} de {{max}}",
+    "salary": "R$ {{amount}} por turno",
+    "onShift": "Em turno",
+    "offShift": "Fora do turno",
+    "performance": "Desempenho",
+    "performanceHint": "Cada turno trabalhado sobe o desempenho. Ao chegar a 100%, você é promovido e o salário aumenta.",
+    "shiftWindow": "Turno das {{start}}h às {{end}}h (horário do jogo).",
+    "workNow": "Trabalhar agora",
+    "waitShift": "Fora do horário do turno",
+    "skipShift": "Faltar ao turno",
+    "skipShiftHint": "Faltar custa desempenho, mas nunca rebaixa de nível.",
+    "noJobTitle": "Sem emprego por enquanto",
+    "noJobHint": "Escolha uma vaga para ganhar dinheiro e treinar uma habilidade.",
+    "seeOffers": "Ver vagas",
+    "offerLine": "R$ {{amount}} no primeiro nível · {{hours}} h de turno, começando às {{start}}h.",
+    "trains": "Treina {{skill}}",
+    "apply": "Candidatar-me",
+    "current": "Emprego atual",
+    "hired": "Novo emprego: {{career}}!",
+    "shiftPaid": "Turno concluído: +R$ {{amount}}",
+    "promoted": "Promoção! Agora você é nível {{level}}.",
+    "missed": "Você faltou ao turno. O desempenho caiu.",
+    "skillsTitle": "Habilidades",
+    "skillsHint": "Habilidades sobem ao usar os móveis certos e aceleram promoções.",
+    "levelShort": "Nv {{level}}"
+  },
+  "emotions": {
+    "happy": "Feliz",
+    "content": "Tranquilo",
+    "energized": "Disposto",
+    "tired": "Cansado",
+    "stressed": "Estressado",
+    "sad": "Triste",
+    "angry": "Irritado",
+    "sick": "Indisposto",
+    "inspired": "Inspirado",
+    "cozy": "Aconchegado"
+  },
+  "store": {
+    "title": "Loja e construção",
+    "balance": "Saldo",
+    "tabStore": "Loja",
+    "tabBuild": "Construir",
+    "buy": "Comprar",
+    "place": "Colocar",
+    "remove": "Guardar",
+    "catalog": "Móveis disponíveis",
+    "categories": {
+      "all": "Tudo",
+      "furniture": "Móveis",
+      "appliance": "Eletrodomésticos",
+      "decor": "Decoração",
+      "electronics": "Eletrônicos",
+      "outdoor": "Área externa"
+    },
+    "price": "🪙 {{amount}}",
+    "quantity": "{{count}} no inventário",
+    "emptyInventory": "Seu inventário está vazio. Compre algo na loja primeiro.",
+    "buildHint": "Escolha um item do inventário para colocá-lo automaticamente em um espaço livre da casa.",
+    "placedTitle": "Na sua casa",
+    "location": "Espaço {{x}}, {{y}}",
+    "seeRoom": "Ver casa",
+    "bought": "{{item}} comprado e guardado no inventário.",
+    "placed": "{{item}} colocado na casa!",
+    "notEnough": "Saldo insuficiente para essa compra.",
+    "noSpace": "Não há espaço livre para esse item. Guarde algum móvel e tente novamente."
+  },
+  "neighborhood": {
+    "title": "Bairro Aurora",
+    "gameTime": "Horário do jogo",
+    "intro": "Passeie pelos lugares do bairro e encontre quem está por perto. Cada pessoa tem sua própria rotina.",
+    "locationsTitle": "Lugares do bairro",
+    "locations": {
+      "plaza": "Praça das Mangueiras",
+      "cafe": "Café Ponto Doce",
+      "park": "Jardim das Flores"
+    },
+    "locationDescriptions": {
+      "plaza": "Um ponto de encontro com sombra e bancos.",
+      "cafe": "Café aconchegante, sempre com cheiro de pão fresco.",
+      "park": "Um cantinho tranquilo para caminhar e conversar."
+    },
+    "peopleCount": "{{count}} por perto",
+    "emptyPlace": "Ninguém por aqui agora. Tente outro lugar ou volte em outro horário.",
+    "friendship": "Amizade",
+    "romance": "Romance",
+    "talk": "Conversar",
+    "flirt": "Flertar",
+    "talked": "Conversa boa! Amizade: {{friendship}}.",
+    "flirted": "Um flerte simpático! Romance: {{romance}}.",
+    "returnHome": "Voltar para casa",
+    "npcs": {
+      "mia": {
+        "name": "Mia",
+        "description": "Barista curiosa que adora histórias e plantas."
+      },
+      "leo": {
+        "name": "Léo",
+        "description": "Músico tranquilo, sempre com uma melodia nova."
+      },
+      "bia": {
+        "name": "Bia",
+        "description": "Ilustradora animada que conhece cada canto do bairro."
+      },
+      "caio": {
+        "name": "Caio",
+        "description": "Cozinheiro gentil e fã de cafés demorados."
+      },
+      "noah": {
+        "name": "Noah",
+        "description": "Fotógrafo observador, gosta de passear ao ar livre."
+      }
     }
   }
 }

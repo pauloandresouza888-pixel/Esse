@@ -7,8 +7,8 @@ import { VitePWA } from 'vite-plugin-pwa';
  * Vite config.
  *
  * Key choices (explained for a junior dev):
- * - `base: './'` is not used: the PWA needs absolute URLs for its manifest and
- *   service worker scope, and we deploy at the domain root.
+ * - The local/Arena build is served at `/`; production uses the repository
+ *   subpath `/Esse/` for GitHub Pages assets, routing and the PWA scope.
  * - The shared package is aliased to its TypeScript source, so there is no build
  *   step for `packages/shared` during development or production.
  * - Phaser is split into its own chunk: the shell (splash, menu, settings) can
@@ -16,8 +16,12 @@ import { VitePWA } from 'vite-plugin-pwa';
  */
 export default defineConfig(({ mode }) => {
   const isTest = mode === 'test';
+  // GitHub Pages publishes this repository under /Esse/, unlike the Arena
+  // preview and local dev server which are served from the domain root.
+  const publicBase = mode === 'production' ? '/Esse/' : '/';
 
   return {
+    base: publicBase,
     plugins: [
       react(),
       !isTest &&
@@ -34,18 +38,18 @@ export default defineConfig(({ mode }) => {
               'Simulação de vida relaxante para celular: cuide do seu personagem, decore a casa e visite amigos.',
             lang: 'pt-BR',
             dir: 'ltr',
-            start_url: '/',
-            scope: '/',
+            start_url: publicBase,
+            scope: publicBase,
             display: 'standalone',
             orientation: 'portrait',
             theme_color: '#FF7A59',
             background_color: '#FFF4E6',
             categories: ['games', 'simulation', 'lifestyle'],
             icons: [
-              { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-              { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+              { src: `${publicBase}icons/icon-192.png`, sizes: '192x192', type: 'image/png' },
+              { src: `${publicBase}icons/icon-512.png`, sizes: '512x512', type: 'image/png' },
               {
-                src: '/icons/maskable-512.png',
+                src: `${publicBase}icons/maskable-512.png`,
                 sizes: '512x512',
                 type: 'image/png',
                 purpose: 'maskable',
@@ -56,7 +60,7 @@ export default defineConfig(({ mode }) => {
             globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2,json}'],
             // The Phaser chunk is heavy; raise the default 2 MB precache limit.
             maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
-            navigateFallback: '/index.html',
+            navigateFallback: `${publicBase}index.html`,
             cleanupOutdatedCaches: true,
             runtimeCaching: [
               {

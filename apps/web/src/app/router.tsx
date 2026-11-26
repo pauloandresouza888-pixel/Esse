@@ -15,8 +15,17 @@ const PlayScreen = lazy(() => import('@/ui/screens/PlayScreen').then((m) => ({ d
 const CreatorScreen = lazy(() =>
   import('@/ui/screens/CreatorScreen').then((m) => ({ default: m.CreatorScreen })),
 );
+const CareerScreen = lazy(() =>
+  import('@/ui/screens/CareerScreen').then((m) => ({ default: m.CareerScreen })),
+);
 const SettingsScreen = lazy(() =>
   import('@/ui/screens/SettingsScreen').then((m) => ({ default: m.SettingsScreen })),
+);
+const NeighborhoodScreen = lazy(() =>
+  import('@/ui/screens/NeighborhoodScreen').then((m) => ({ default: m.NeighborhoodScreen })),
+);
+const StoreScreen = lazy(() =>
+  import('@/ui/screens/StoreScreen').then((m) => ({ default: m.StoreScreen })),
 );
 const FriendsScreen = lazy(() =>
   import('@/ui/screens/FriendsScreen').then((m) => ({ default: m.FriendsScreen })),
@@ -33,6 +42,9 @@ export const routes = {
   menu: '/',
   play: '/jogar',
   creator: '/criar',
+  career: '/carreira',
+  store: '/loja',
+  neighborhood: '/bairro',
   settings: '/ajustes',
   friends: '/amigos',
 } as const;
@@ -58,10 +70,34 @@ export function AppRoutes() {
         }
       />
       <Route
+        path={routes.career}
+        element={
+          <Suspense fallback={<ScreenFallback />}>
+            <CareerScreen />
+          </Suspense>
+        }
+      />
+      <Route
         path={routes.settings}
         element={
           <Suspense fallback={<ScreenFallback />}>
             <SettingsScreen />
+          </Suspense>
+        }
+      />
+      <Route
+        path={routes.neighborhood}
+        element={
+          <Suspense fallback={<ScreenFallback />}>
+            <NeighborhoodScreen />
+          </Suspense>
+        }
+      />
+      <Route
+        path={routes.store}
+        element={
+          <Suspense fallback={<ScreenFallback />}>
+            <StoreScreen />
           </Suspense>
         }
       />

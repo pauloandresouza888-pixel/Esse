@@ -17,6 +17,7 @@ import Phaser from 'phaser';
 import {
   ambientForDayProgress,
   approachCell,
+  placementFromExtra,
   buildBlockedGrid,
   createClock,
   findRoomPath,
@@ -82,6 +83,7 @@ export class RoomScene extends Phaser.Scene {
 
   private clock!: GameClock;
   private grid = buildBlockedGrid();
+  private roomPlacements: RoomPlacement[] = [...ROOM_PLACEMENTS];
   private objects = new Map<string, PlacedObject>();
   /** Walkable cell in front of each interactive object (shared rules). */
   private approachCells = new Map<string, { x: number; y: number }>();
@@ -117,6 +119,10 @@ export class RoomScene extends Phaser.Scene {
   init(data: RoomSceneData): void {
     this.sceneData = { ...this.sceneData, ...data };
     this.currentCell = { ...(data.characterCell ?? { x: 11, y: 7 }) };
+    this.roomPlacements = [
+      ...ROOM_PLACEMENTS,
+      ...(data.placedFurniture ?? []).map(placementFromExtra).filter((entry): entry is RoomPlacement => entry !== null),
+    ];
     this.objects = new Map();
     this.approachCells = new Map();
     this.lampGlows = [];
@@ -133,7 +139,7 @@ export class RoomScene extends Phaser.Scene {
   create(): void {
     this.clock = createClock(this.sceneData.dayLengthMs / 1000, 0, 0);
     this.clock.totalMs = this.sceneData.clockTotalMs;
-    this.grid = buildBlockedGrid();
+    this.grid = buildBlockedGrid(this.roomPlacements);
 
     this.cameras.main.setBackgroundColor(SCENE_COLORS.outside);
     this.scaleCamera();
@@ -150,7 +156,7 @@ export class RoomScene extends Phaser.Scene {
   /* ---------------------------------------------------------------------- */
 
   private async buildRoom(): Promise<void> {
-    await loadRoomTextures(this, this.sceneData.appearance, this.sceneData.quality);
+    await loadRoomTextures(this, this.sceneData.appearance, this.sceneData.quality, this.roomPlacements);
     if (this.destroyed) return;
 
     if (this.textures.exists(BACKGROUND_KEY)) {
@@ -162,7 +168,7 @@ export class RoomScene extends Phaser.Scene {
 
     // Objects are created back-to-front so the display list already has the
     // right order; the depth value keeps it correct when the character walks.
-    const sorted = [...ROOM_PLACEMENTS].sort((a, b) => {
+    const sorted = [...this.roomPlacements].sort((a, b) => {
       const rectA = projectRect(a.cell, a.footprint);
       const rectB = projectRect(b.cell, b.footprint);
       return depthFor(rectA.bottom, a.layer) - depthFor(rectB.bottom, b.layer);
@@ -325,7 +331,7 @@ export class RoomScene extends Phaser.Scene {
   }
 
   private addObjectZones(): void {
-    for (const placement of ROOM_PLACEMENTS) {
+    for (const placement of this.roomPlacements) {
       if (placement.interactive === false) continue;
       const object = this.objects.get(placement.id);
       if (!object) continue;
@@ -485,7 +491,7 @@ export class RoomScene extends Phaser.Scene {
 
   /** Puts the character next to an object without turning the tap into a path. */
   faceObject(cell: { x: number; y: number }): void {
-    const placement = ROOM_PLACEMENTS.find(
+    const placement = this.roomPlacements.find(
       (candidate) => candidate.cell.x === cell.x && candidate.cell.y === cell.y,
     );
     if (placement) this.setHighlight(placement);
@@ -816,7 +822,7 @@ function interactionEmoji(itemId: string, interactionId: InteractionId): string 
   if (interactionId === 'eat' || interactionId === 'cook') return '🍲';
   if (interactionId === 'shower' || interactionId === 'washHands') return '🫧';
   if (interactionId === 'toilet') return '✨';
-  if (itemId === 'cat') return '💛';
+  if (itemId === 'catBed') return '💛';
   if (interactionId === 'read') return '📖';
   if (interactionId === 'coffee') return '☕';
   if (interactionId === 'relax' || interactionId === 'sit') return '🎵';

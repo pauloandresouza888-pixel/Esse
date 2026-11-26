@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import {
   advanceWorld,
+  applyShift,
   applyTutorialSignal,
   beginAction,
   cancelAction,
@@ -13,10 +14,12 @@ import {
   DEFAULT_SETTINGS,
   simulateAway,
   finishTutorial,
+  itemById,
   migrateSave,
   skipAction,
   type ActiveAction,
   type Appearance,
+  type CareerId,
   type Character,
   type Gender,
   type InteractionId,
@@ -29,6 +32,24 @@ import {
   type SimEvent,
   type TutorialSignal,
   touchSave,
+  // Phase 2: autonomy, careers and emotions
+  CAREER_SKILL,
+  applyRelationshipAction,
+  NEIGHBORHOOD_NPCS,
+  npcLocationAtHour,
+  readClock,
+  buyItem,
+  decideNextAction,
+  findFreeSpot,
+  takeFromInventory,
+  ROOM_PLACEMENTS,
+  remember,
+  type AiObject,
+  type AiDecision,
+  type CareerProgress,
+  type EmotionId,
+  type Relationship,
+  type RelationshipAction,
 } from '@vida/shared';
 import { storage } from '@/platform/storage';
 import { resolveLanguage } from '@/i18n';
@@ -88,6 +109,38 @@ interface GameState {
   /** Marks a tutorial step (walked / used an object / woke up). */
   signalTutorial: (signal: TutorialSignal) => void;
   skipTutorial: () => void;
+
+  /* ---- autonomy and life (Phase 2) ---- */
+  /**
+   * Lets the character decide for itself. Called by the game loop every few
+   * seconds; returns the decision (null when it decided to do nothing).
+   */
+  think: () => AiDecision | null;
+  /** Turns autonomy on/off (Settings). */
+  setAutonomous: (enabled: boolean) => void;
+  /** Takes a job; leaves the current one when switching. */
+  startCareer: (career: CareerId) => boolean;
+  /** Pays the current shift and applies performance/promotion. */
+  workShift: (options?: { missed?: boolean }) => {
+    salary: number;
+    promoted: boolean;
+    level: number;
+  };
+  /** Adds skill XP to one skill and returns the new level. */
+  addSkillXp: (skill: string, xp: number) => number;
+  /** Adds an emotion (used by work, purchases, story events). */
+  addEmotion: (emotion: EmotionId, reason: string) => void;
+
+  /* ---- store and building (Phase 2) ---- */
+  /** Buys one unit; false when the money is not enough (nothing changes). */
+  buyFurniture: (itemId: string) => boolean;
+  /** Places an inventory item on the first free spot; false when the room is full. */
+  placeFurniture: (itemId: string) => boolean;
+  /** Puts a placed piece back into the inventory. */
+  unplaceFurniture: (placementId: string) => void;
+
+  /* ---- neighborhood and local relationships (Phase 2) ---- */
+  interactWithNpc: (npcId: string, action: RelationshipAction) => Relationship | null;
 }
 
 const SAVE_DEBOUNCE_MS = 600;
@@ -164,7 +217,13 @@ function catchUpOffline(save: SaveGame): SaveGame {
   // The clock is only as fresh as the last save; the world keeps living for the
   // capped window so reopening after a night feels alive.
   const { world } = simulateAway(
-    { clock: save.world.clock, needs: save.world.needs, action: save.world.action },
+    {
+      clock: save.world.clock,
+      needs: save.world.needs,
+      action: save.world.action,
+      emotions: save.world.emotions,
+      memories: save.world.memories,
+    },
     Date.now() - savedAt,
   );
   return {
@@ -174,6 +233,8 @@ function catchUpOffline(save: SaveGame): SaveGame {
       clock: world.clock,
       needs: world.needs,
       action: world.action,
+      emotions: world.emotions ?? save.world.emotions,
+      memories: world.memories ?? save.world.memories,
     },
   };
 }
@@ -325,12 +386,16 @@ export const useGameStore = create<GameState>((set, get) => ({
         clock: current.world.clock,
         needs: current.world.needs,
         action: current.world.action,
+        emotions: current.world.emotions,
+        memories: current.world.memories,
       },
       realMs,
     );
     if (result.world === current.world && result.events.length === 0) return [];
 
     let profile = current.profile;
+    let skills = current.world.skills;
+    let skillXp = current.world.skillXp ?? {};
     for (const event of result.events) {
       if (event.type === 'action-completed') {
         const signal: TutorialSignal =
@@ -338,6 +403,16 @@ export const useGameStore = create<GameState>((set, get) => ({
             ? { type: 'woke-up' }
             : { type: 'action-completed', itemId: event.itemId };
         profile = applyTutorialSignal(profile, signal);
+        // Using an object that trains a skill earns xp: cooking on the stove,
+        // painting at the easel... The AI levels up the same way the player does.
+        const item = itemById(event.itemId);
+        if (item?.skill) {
+          const level = skills[item.skill] ?? 0;
+          const total = (skillXp[item.skill] ?? 0) + 12;
+          const gained = Math.floor(total / 100);
+          skillXp = { ...skillXp, [item.skill]: total % 100 };
+          if (gained > 0) skills = { ...skills, [item.skill]: Math.min(10, level + gained) };
+        }
       }
     }
 
@@ -349,6 +424,10 @@ export const useGameStore = create<GameState>((set, get) => ({
         clock: result.world.clock,
         needs: result.world.needs,
         action: result.world.action,
+        emotions: result.world.emotions ?? current.world.emotions,
+        memories: result.world.memories ?? current.world.memories,
+        skills,
+        skillXp,
       },
     };
     // The loop calls this ~4x/s; `set` is cheap and only subscribers that read
@@ -367,6 +446,8 @@ export const useGameStore = create<GameState>((set, get) => ({
         clock: current.world.clock,
         needs: current.world.needs,
         action: current.world.action,
+        emotions: current.world.emotions,
+        memories: current.world.memories,
       },
       itemId,
       interactionId,
@@ -388,6 +469,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       clock: current.world.clock,
       needs: current.world.needs,
       action: current.world.action,
+      emotions: current.world.emotions,
+      memories: current.world.memories,
     });
     const save: SaveGame = {
       ...current,
@@ -404,6 +487,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       clock: current.world.clock,
       needs: current.world.needs,
       action: current.world.action,
+      emotions: current.world.emotions,
+      memories: current.world.memories,
     });
     let profile = current.profile;
     for (const event of result.events) {
@@ -419,6 +504,8 @@ export const useGameStore = create<GameState>((set, get) => ({
         clock: result.world.clock,
         needs: result.world.needs,
         action: result.world.action,
+        emotions: result.world.emotions ?? current.world.emotions,
+        memories: result.world.memories ?? current.world.memories,
       },
     };
     set({ save });
@@ -455,6 +542,306 @@ export const useGameStore = create<GameState>((set, get) => ({
     const save: SaveGame = { ...current, profile: finishTutorial(current.profile) };
     set({ save });
     persistSoon(save);
+  },
+
+  /* -------------------------------------------------------------------- */
+  /*                     AUTONOMY, CAREERS, EMOTIONS                       */
+  /* -------------------------------------------------------------------- */
+
+  think: () => {
+    const current = get().save;
+    if (!current) return null;
+    const world = current.world;
+    // While an action runs, or with autonomy off, the character just lives.
+    if (world.action || !world.autonomous) return null;
+    // The tutorial teaches the player the controls: the AI stays quiet until
+    // it is done, otherwise the character would "steal" the first steps.
+    if (!current.profile.tutorialDone) return null;
+
+    const objects: AiObject[] = ROOM_PLACEMENTS.filter(
+      (placement) => placement.interactive !== false,
+    ).map((placement) => ({ id: placement.id, itemId: placement.itemId }));
+
+    const decision = decideNextAction(
+      {
+        needs: world.needs,
+        clock: world.clock,
+        traits: world.character.traits,
+        career: world.career?.career ?? null,
+        skills: world.skills,
+        objects,
+      },
+      `${current.profile.id}:${Math.floor(world.clock.totalMs / 60_000)}`,
+    );
+
+    if (decision.kind !== 'interact') return decision;
+    // Guard: the chosen object must still exist in the house.
+    const placement = ROOM_PLACEMENTS.find((candidate) => candidate.itemId === decision.itemId);
+    if (!placement) return null;
+    const started = get().startInteraction(decision.itemId, decision.interactionId);
+    if (!started) return null;
+    return decision;
+  },
+
+  setAutonomous: (enabled) => {
+    const current = get().save;
+    if (!current) return;
+    const save: SaveGame = {
+      ...current,
+      world: { ...current.world, autonomous: enabled },
+    };
+    set({ save });
+    persistSoon(save);
+  },
+
+  startCareer: (career) => {
+    const current = get().save;
+    if (!current) return false;
+    // A new job always starts at level 1 with a clean performance sheet.
+    const progress: CareerProgress = {
+      career,
+      level: 1,
+      performance: 0,
+      shiftsWorked: 0,
+    };
+    const remembered = remember(
+      current.world.memories,
+      current.world.emotions,
+      {
+        interactionId: 'work',
+        atMs: current.world.clock.totalMs,
+        mood: 2,
+        emotion: 'inspired',
+      },
+      current.world.clock.totalMs,
+      current.world.clock.dayLengthMs,
+    );
+    const save: SaveGame = {
+      ...current,
+      world: {
+        ...current.world,
+        career: progress,
+        memories: remembered.memories,
+        emotions: remembered.emotions,
+      },
+    };
+    set({ save });
+    persistSoon(save);
+    return true;
+  },
+
+  workShift: (options = {}) => {
+    const current = get().save;
+    if (!current?.world.career) {
+      return { salary: 0, promoted: false, level: 0 };
+    }
+    const definition = current.world.career;
+    // Skills are keyed by SkillId, not by career id: `chef` trains `cooking`.
+    const careerSkill = CAREER_SKILL[definition.career];
+    const skillLevel = current.world.skills[careerSkill] ?? 0;
+    const result = applyShift(definition, {
+      missed: options.missed,
+      skillLevel,
+    });
+    const salary = result.salary;
+    const nowMs = current.world.clock.totalMs;
+    const emotion = options.missed
+      ? ('stressed' as const)
+      : result.promoted
+        ? ('inspired' as const)
+        : ('energized' as const);
+    const remembered = remember(
+      current.world.memories,
+      current.world.emotions,
+      {
+        interactionId: options.missed ? 'missedShift' : result.promoted ? 'promotion' : 'work',
+        atMs: nowMs,
+        mood: 0,
+        emotion,
+      },
+      nowMs,
+      current.world.clock.dayLengthMs,
+    );
+    const needs = { ...current.world.needs };
+    let skills = current.world.skills;
+    let skillXp = current.world.skillXp ?? {};
+    if (!options.missed) {
+      // A worked shift costs energy and fun, and pays the salary.
+      needs.energy = Math.max(0, needs.energy - 14);
+      needs.fun = Math.max(0, needs.fun - 8);
+      // Working is the main way to train the career skill: +35 xp per shift
+      // (a promotion run needs ~3 shifts to see the first level).
+      const level = current.world.skills[careerSkill] ?? 0;
+      const total = (skillXp[careerSkill] ?? 0) + 35;
+      const gained = Math.floor(total / 100);
+      if (gained > 0) {
+        skills = { ...current.world.skills, [careerSkill]: Math.min(10, level + gained) };
+        skillXp = { ...skillXp, [careerSkill]: total % 100 };
+      } else {
+        skillXp = { ...skillXp, [careerSkill]: total };
+      }
+    }
+    const save: SaveGame = {
+      ...current,
+      world: {
+        ...current.world,
+        career: result.progress,
+        money: current.world.money + salary,
+        needs,
+        skills,
+        skillXp,
+        emotions: remembered.emotions,
+        memories: remembered.memories,
+      },
+    };
+    set({ save });
+    persistSoon(save);
+    return { salary, promoted: result.promoted, level: result.progress.level };
+  },
+
+  addSkillXp: (skill, xp) => {
+    const current = get().save;
+    if (!current) return 0;
+    // 100 XP per level, capped at 10. Simple on purpose: the bar in the UI is
+    // "xp % 100", and a level is a milestone, not a grind.
+    const currentLevel = current.world.skills[skill] ?? 0;
+    const currentXp = current.world.skillXp?.[skill] ?? 0;
+    const total = currentXp + Math.max(0, xp);
+    const gained = Math.floor(total / 100);
+    const level = Math.min(10, currentLevel + gained);
+    const remaining = gained > 0 ? total % 100 : total;
+    const save: SaveGame = {
+      ...current,
+      world: {
+        ...current.world,
+        skills: { ...current.world.skills, [skill]: level },
+        skillXp: { ...(current.world.skillXp ?? {}), [skill]: remaining },
+      },
+    };
+    set({ save });
+    persistSoon(save);
+    return level;
+  },
+
+  buyFurniture: (itemId) => {
+    const current = get().save;
+    if (!current) return false;
+    const result = buyItem(itemId, current.world.money, current.world.house.inventory);
+    if (!result.ok) return false;
+    const remembered = remember(
+      current.world.memories,
+      current.world.emotions,
+      {
+        interactionId: 'purchase',
+        atMs: current.world.clock.totalMs,
+        mood: 4,
+        emotion: 'happy',
+      },
+      current.world.clock.totalMs,
+      current.world.clock.dayLengthMs,
+    );
+    const save: SaveGame = {
+      ...current,
+      world: {
+        ...current.world,
+        money: result.money,
+        house: { ...current.world.house, inventory: result.inventory },
+        emotions: remembered.emotions,
+        memories: remembered.memories,
+      },
+    };
+    set({ save });
+    persistSoon(save);
+    return true;
+  },
+
+  placeFurniture: (itemId) => {
+    const current = get().save;
+    if (!current) return false;
+    const inventory = takeFromInventory(current.world.house.inventory, itemId);
+    if (!inventory) return false;
+    const placed = current.world.house.placed ?? [];
+    const nextIndex = placed.reduce((max, entry) => {
+      const match = /^extra-(\d+)$/.exec(entry.id);
+      return match ? Math.max(max, Number(match[1]) + 1) : max;
+    }, 1);
+    const spot = findFreeSpot(itemId, placed, nextIndex);
+    if (!spot) return false;
+    const save: SaveGame = {
+      ...current,
+      world: {
+        ...current.world,
+        house: {
+          ...current.world.house,
+          inventory,
+          placed: [...placed, { id: spot.id, itemId: spot.itemId, x: spot.x, y: spot.y }],
+        },
+      },
+    };
+    set({ save });
+    persistSoon(save);
+    return true;
+  },
+
+  unplaceFurniture: (placementId) => {
+    const current = get().save;
+    const placed = current?.world.house.placed ?? [];
+    const piece = placed.find((entry) => entry.id === placementId);
+    if (!current || !piece) return;
+    const save: SaveGame = {
+      ...current,
+      world: {
+        ...current.world,
+        house: {
+          ...current.world.house,
+          placed: placed.filter((entry) => entry.id !== placementId),
+          inventory: [...current.world.house.inventory, piece.itemId],
+        },
+      },
+    };
+    set({ save });
+    persistSoon(save);
+  },
+
+  interactWithNpc: (npcId, action) => {
+    const current = get().save;
+    if (!current || !NEIGHBORHOOD_NPCS.some((npc) => npc.id === npcId)) return null;
+    const hour = readClock(current.world.clock).hour;
+    if (!npcLocationAtHour(npcId, hour)) return null;
+    const relationship = applyRelationshipAction(current.world.relationships?.[npcId], action);
+    const save: SaveGame = {
+      ...current,
+      world: {
+        ...current.world,
+        relationships: { ...current.world.relationships, [npcId]: relationship },
+      },
+    };
+    set({ save });
+    persistSoon(save);
+    return relationship;
+  },
+
+  addEmotion: (emotion, reason) => {
+    const current = get().save;
+    if (!current) return;
+    const remembered = remember(
+      current.world.memories,
+      current.world.emotions,
+      { interactionId: 'work', atMs: current.world.clock.totalMs, mood: 0, emotion },
+      current.world.clock.totalMs,
+      current.world.clock.dayLengthMs,
+    );
+    const save: SaveGame = {
+      ...current,
+      world: {
+        ...current.world,
+        emotions: remembered.emotions,
+        memories: remembered.memories,
+      },
+    };
+    set({ save });
+    persistSoon(save);
+    void reason;
   },
 }));
 

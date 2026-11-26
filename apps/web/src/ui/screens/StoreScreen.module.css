@@ -1,0 +1,18 @@
+.screen { gap: var(--space-3); padding-bottom: max(var(--space-5), env(safe-area-inset-bottom)); }
+.balance { display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+.balance strong { color: var(--text-primary); font-size: var(--text-lg); }
+.tabs { display: flex; gap: 4px; padding: 4px; border-radius: var(--radius-pill); background: rgba(58,46,42,.07); }
+.tabs button { flex: 1; min-height: 42px; border-radius: var(--radius-pill); color: var(--text-secondary); font-weight: 800; }
+.tabs button span { margin-left: 4px; padding: 2px 7px; border-radius: var(--radius-pill); background: rgba(58,46,42,.08); }
+.tabs .activeTab { color: var(--text-primary); background: var(--bg-surface-strong); box-shadow: var(--shadow-sm); }
+.filters { display: flex; gap: 8px; overflow-x: auto; padding: 1px 0 4px; }
+.filters button { flex: 0 0 auto; min-height: 38px; padding: 0 14px; border-radius: var(--radius-pill); background: var(--bg-surface); color: var(--text-secondary); font-size: var(--text-xs); font-weight: 800; }
+.filters .filterActive { background: var(--color-lilac-soft); color: var(--text-primary); }
+.items, .buildSection { display: flex; flex-direction: column; gap: var(--space-2); }
+.itemCard { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2); }
+.emoji { display: grid; width: 42px; height: 42px; flex: 0 0 42px; place-items: center; border-radius: 14px; background: rgba(255,190,130,.18); font-size: 23px; }
+.itemInfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.itemInfo strong { color: var(--text-primary); font-size: var(--text-sm); }
+.itemInfo small { color: var(--text-muted); font-size: var(--text-xs); font-weight: 700; }
+.subheading { margin: var(--space-2) 0 0; color: var(--text-primary); font-size: var(--text-md); }
+.playLink { text-decoration: none; margin-top: var(--space-2); }

@@ -10,6 +10,7 @@ import {
   OUTFIT_COLORS,
   ROOM_ART_SIZES,
   ROOM_PLACEMENTS,
+  ITEMS,
   ROOM_CELLS,
 } from '@vida/shared';
 import { characterSvg, darken, lighten, svgToDataUri } from '../art/characterSvg';
@@ -111,6 +112,15 @@ describe('furniture art', () => {
 });
 
 describe('room art catalog', () => {
+  it('has a renderable texture and measured size for every store item', () => {
+    const specs = new Map(FURNITURE.map((spec) => [spec.key, spec]));
+    for (const item of ITEMS) {
+      const spec = specs.get(item.id);
+      expect(spec, `missing store art for ${item.id}`).toBeDefined();
+      expect(ROOM_ART_SIZES[item.id], `missing measured size for ${item.id}`).toEqual({ w: spec!.w, h: spec!.h });
+    }
+  });
+
   it('has a drawing and a matching size for every placed item', () => {
     const specs = new Map(FURNITURE.map((spec) => [spec.key, spec]));
     for (const placement of ROOM_PLACEMENTS) {

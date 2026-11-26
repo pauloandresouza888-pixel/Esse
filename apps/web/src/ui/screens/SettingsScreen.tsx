@@ -18,6 +18,7 @@ import { readDeviceInfo } from '@/platform/device';
 import { sound } from '@/platform/audio';
 import { routes } from '@/app/router';
 import styles from './SettingsScreen.module.css';
+import { publicUrl } from '@/platform/publicUrl';
 
 export function SettingsScreen() {
   const { t, i18n } = useTranslation();
@@ -40,6 +41,9 @@ export function SettingsScreen() {
     void setLanguage(language);
     applySettingsToDocument({ ...settings, language }, language);
   };
+
+  const setAutonomous = useGameStore((state) => state.setAutonomous);
+  const autonomous = useGameStore((state) => state.save?.world.autonomous ?? true);
 
   const change = (patch: Parameters<typeof updateSettings>[0]) => {
     updateSettings(patch);
@@ -172,6 +176,20 @@ export function SettingsScreen() {
           </Card>
         </section>
 
+        <section className={styles.section} aria-labelledby="settings-gameplay">
+          <h2 id="settings-gameplay" className={styles.sectionTitle}>
+            {t('settings.sections.gameplay')}
+          </h2>
+          <Card>
+            <Toggle
+              label={t('settings.autonomous')}
+              hint={t('settings.autonomousHint')}
+              checked={autonomous}
+              onChange={(value) => setAutonomous(value)}
+            />
+          </Card>
+        </section>
+
         <section className={styles.section} aria-labelledby="settings-language">
           <h2 id="settings-language" className={styles.sectionTitle}>
             {t('settings.sections.language')}
@@ -240,7 +258,7 @@ export function SettingsScreen() {
           </h2>
           <Card tone="warm">
             <div className={styles.about}>
-              <img src="/brand/logo-mark.svg" alt="" width={56} height={56} />
+              <img src={publicUrl('brand/logo-mark.svg')} alt="" width={56} height={56} />
               <div>
                 <p className={styles.aboutName}>
                   {GAME_BRAND.name} · {t('common.version', { version: GAME_BRAND.version })}
