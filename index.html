@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oclusão Interativa — Classes I, II e III de Angle</title>
+<style>
+  :root{
+    --bg:#f4f7fb; --card:#fff; --ink:#132238; --muted:#5b6b82; --line:#e2eaf3;
+    --blue:#0e7fd8; --teal:#0bb4a6; --orange:#ff8a3d; --red:#ef476f; --purple:#7c5cff;
+    --radius:20px; --shadow:0 10px 30px rgba(19,34,56,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  a{color:var(--blue)}
+
+  /* HERO */
+  header.hero{background:linear-gradient(135deg,#0a2a4a 0%,#0e7fd8 55%,#0bb4a6 100%);color:#fff;padding:56px 20px 70px;text-align:center;position:relative;overflow:hidden}
+  header.hero::after{content:"🦷";position:absolute;font-size:340px;opacity:.07;right:-40px;top:-60px;transform:rotate(20deg)}
+  .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);padding:6px 16px;border-radius:999px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+  header.hero h1{font-size:clamp(30px,5vw,52px);line-height:1.1;margin-bottom:14px}
+  header.hero h1 span{color:#7ef0e2}
+  header.hero p{max-width:760px;margin:0 auto 26px;font-size:17px;opacity:.92}
+  .hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;z-index:2}
+  .btn{border:none;cursor:pointer;padding:13px 24px;border-radius:999px;font-size:15px;font-weight:700;transition:.2s;text-decoration:none;display:inline-block}
+  .btn-white{background:#fff;color:#0a4a80}.btn-white:hover{transform:translateY(-2px)}
+  .btn-ghost{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.6)}.btn-ghost:hover{background:rgba(255,255,255,.15)}
+  nav.top{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  nav.top a{color:var(--ink);text-decoration:none;font-size:14px;font-weight:600;padding:8px 14px;border-radius:999px}
+  nav.top a:hover{background:#e8f3fd;color:var(--blue)}
+
+  main{max-width:1100px;margin:-34px auto 0;padding:0 16px 60px;position:relative;z-index:3}
+  section{margin-bottom:28px}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;border:1px solid var(--line)}
+  h2{font-size:26px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  h2 .num{background:linear-gradient(135deg,var(--blue),var(--teal));color:#fff;width:36px;height:36px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:17px;flex:none}
+  .sub{color:var(--muted);margin-bottom:20px}
+  h3{font-size:18px;margin:18px 0 8px}
+  p{margin-bottom:10px}
+  ul{margin:6px 0 12px 20px} li{margin-bottom:6px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+  .mini{background:#f7fbff;border:1px solid var(--line);border-radius:16px;padding:18px}
+  .mini h4{margin-bottom:6px;font-size:16px}
+  .mini p,.mini li{font-size:14.5px;color:#33465e}
+  .tag{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:999px;color:#fff}
+  .callout{border-left:5px solid var(--orange);background:#fff6ee;border-radius:12px;padding:16px 18px;margin:16px 0;font-size:15px}
+  .callout.blue{border-color:var(--blue);background:#eef6fe}
+  .callout.teal{border-color:var(--teal);background:#eafaf8}
+  .key-term{font-weight:700;color:var(--blue)}
+
+  /* SIMULADOR */
+  .sim-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .sim-btn{flex:1;min-width:140px;border:2px solid var(--line);background:#fff;border-radius:16px;padding:14px;cursor:pointer;font-weight:800;font-size:15px;transition:.2s;color:var(--ink)}
+  .sim-btn small{display:block;font-weight:600;color:var(--muted);font-size:12px;margin-top:2px}
+  .sim-btn.active.I{border-color:var(--teal);background:#eafaf8}
+  .sim-btn.active.II{border-color:var(--orange);background:#fff6ee}
+  .sim-btn.active.III{border-color:var(--purple);background:#f1edff}
+  .sim-wrap{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:start}
+  @media(max-width:820px){.sim-wrap{grid-template-columns:1fr}}
+  .sim-stage{background:linear-gradient(180deg,#fbfdff,#eef6fd);border:1px solid var(--line);border-radius:16px;padding:10px}
+  input[type=range]{width:100%;accent-color:var(--blue);height:36px;cursor:pointer}
+  .readout{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+  .stat b{display:block;font-size:21px}
+  .stat span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  #simDesc{font-size:15px}
+  #mandGroup{transition:transform .8s cubic-bezier(.34,1.4,.4,1)}
+  #profileGroup{transition:all .8s}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:8px}
+  .dot{width:12px;height:12px;border-radius:4px;display:inline-block;vertical-align:-1px;margin-right:5px}
+
+  /* TABS CLASSES */
+  .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:0}
+  .tab{border:none;cursor:pointer;padding:13px 22px;border-radius:16px 16px 0 0;font-weight:800;font-size:15px;background:#dde8f3;color:var(--muted);transition:.2s}
+  .tab.active{background:#fff;color:var(--ink);box-shadow:0 -4px 14px rgba(19,34,56,.05)}
+  .tab-panel{background:#fff;border-radius:0 20px 20px 20px;box-shadow:var(--shadow);border:1px solid var(--line);padding:28px;display:none}
+  .tab-panel.active{display:block;animation:fade .35s}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+  details{border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:10px;background:#fbfdff}
+  summary{cursor:pointer;font-weight:700}
+  details p,details li{font-size:14.5px}
+
+  /* TABELA */
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
+  th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#0a2a4a;color:#fff} th:first-child{border-radius:12px 0 0 0} th:last-child{border-radius:0 12px 0 0}
+  tr:hover td{background:#f7fbff}
+  td:first-child{font-weight:700;white-space:nowrap}
+
+  /* QUIZ */
+  .quiz-q{background:#f7fbff;border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px}
+  .quiz-q h4{margin-bottom:12px;font-size:16px}
+  .opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:8px;cursor:pointer;font-size:15px;transition:.15s;font-family:inherit;color:var(--ink)}
+  .opt:hover{border-color:var(--blue)}
+  .opt.correct{border-color:#12b76a;background:#e9f9f1;font-weight:700}
+  .opt.wrong{border-color:var(--red);background:#fdeef3}
+  .opt:disabled{cursor:default;opacity:.92}
+  .feedback{font-size:14.5px;margin-top:8px;display:none;padding:12px 14px;border-radius:10px}
+  .feedback.ok{display:block;background:#e9f9f1;border:1px solid #b8e8cd}
+  .feedback.no{display:block;background:#fdeef3;border:1px solid #f6c3d2}
+  #scoreBox{text-align:center;font-size:19px;font-weight:800;padding:18px;border-radius:16px;background:linear-gradient(135deg,#eafaf8,#eef6fe);border:1px solid var(--line);display:none}
+
+  /* FLASH / CHECK */
+  .check-item{display:flex;gap:12px;align-items:flex-start;background:#f7fbff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;font-size:15px}
+  .check-item input{width:20px;height:20px;margin-top:2px;accent-color:var(--teal);flex:none}
+  .check-item.done{opacity:.65;text-decoration:line-through}
+  .progress{height:14px;background:#e6eef7;border-radius:999px;overflow:hidden;margin:12px 0 4px}
+  .progress-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));width:0%;transition:.4s}
+  footer{text-align:center;color:var(--muted);font-size:13.5px;padding:10px 20px 40px;max-width:800px;margin:0 auto}
+  .tooth-fact{display:none;background:#fff8ec;border:1px dashed var(--orange);border-radius:14px;padding:16px;margin-top:14px;font-size:15px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="badge">🦷 Odontologia • Ortodontia</span>
+  <h1>Oclusão &amp; <span>Classes de Angle</span><br>explicadas de forma interativa</h1>
+  <p>Entenda o que é oclusão, o que é uma mordida ideal e como diagnosticar a <b>Classe I, Classe II e Classe III</b> — com simulador visual, comparativos e quiz. Clique, arraste e aprenda fazendo!</p>
+  <div class="hero-btns">
+    <a class="btn btn-white" href="#simulador">▶ Abrir o simulador</a>
+    <a class="btn btn-ghost" href="#quiz">Fazer o quiz</a>
+  </div>
+</header>
+
+<nav class="top">
+  <a href="#oque">1. O que é oclusão</a>
+  <a href="#simulador">🎛️ Simulador</a>
+  <a href="#classes">2. Classes I, II e III</a>
+  <a href="#comparar">3. Comparar</a>
+  <a href="#diagnostico">4. Diagnóstico e tratamento</a>
+  <a href="#quiz">✅ Quiz</a>
+</nav>
+
+<main>
+
+<!-- ============ 1. O QUE É OCLUSÃO ============ -->
+<section id="oque">
+  <div class="card">
+    <h2><span class="num">1</span> O que é oclusão?</h2>
+    <p class="sub">A base de tudo: como os dentes de cima e de baixo se encontram.</p>
+
+    <p><span class="key-term">Oclusão</span> é a relação de contato entre os dentes superiores (maxila) e inferiores (mandíbula) — tanto <b>parados</b> quanto <b>em movimento</b>. Ela não envolve só dentes: inclui a articulação da mandíbula (<b>ATM</b>), os músculos da mastigação, o periodonto (gengiva e osso de suporte) e o sistema nervoso. É um sistema inteiro trabalhando junto para mastigar, falar, engolir e sorrir.</p>
+
+    <div class="grid3">
+      <div class="mini"><h4>🔒 Oclusão estática</h4><p>Como os dentes se encaixam com a boca fechada e parada. É o que a Classificação de Angle avalia.</p></div>
+      <div class="mini"><h4>🔄 Oclusão dinâmica</h4><p>Como os dentes se tocam durante os movimentos: abrir, fechar, deslizar para os lados (lateralidade) e para frente (protrusão).</p></div>
+      <div class="mini"><h4>🎯 Oclusão ideal</h4><p>Encaixe estável, forças bem distribuídas ao longo do eixo dos dentes, sem contatos prematuros, com função eficiente e sem dor.</p></div>
+    </div>
+
+    <h3>Conceitos que você precisa dominar</h3>
+    <div class="grid2">
+      <div class="mini">
+        <h4>Posições da mandíbula</h4>
+        <ul>
+          <li><b>MIH (Máxima Intercuspidação Habitual):</b> posição onde há o maior número de contatos entre os dentes. É a "mordida de costume".</li>
+          <li><b>RC (Relação Cêntrica):</b> posição da mandíbula definida pela ATM (côndilos bem posicionados na fossa), independente dos dentes.</li>
+          <li><b>DVO (Dimensão Vertical de Oclusão):</b> altura do terço inferior da face quando os dentes estão em contato. Perder DVO (ex.: desgaste severo) "encurta" o rosto.</li>
+        </ul>
+      </div>
+      <div class="mini">
+        <h4>Trespasse (a "sobremordida")</h4>
+        <ul>
+          <li><b>Overjet (trespasse horizontal):</b> distância horizontal entre os incisivos superiores e inferiores. Normal: <b>2 a 3 mm</b>.</li>
+          <li><b>Overbite (trespasse vertical):</b> quanto os incisivos superiores cobrem os inferiores verticalmente. Normal: <b>2 a 3 mm</b> (≈ 20–30% da coroa).</li>
+          <li><b>Curva de Spee e Curva de Wilson:</b> curvaturas naturais das arcadas que ajudam a distribuir as forças mastigatórias.</li>
+        </ul>
+      </div>
+      <div class="mini">
+        <h4>Guias dos movimentos</h4>
+        <ul>
+          <li><b>Guia anterior:</b> ao projetar a mandíbula para frente, os incisivos guiam e os dentes de trás desocluem.</li>
+          <li><b>Guia canina:</b> ao mover para o lado, o canino do lado de trabalho guia e os demais dentes desocluem.</li>
+          <li><b>Função em grupo:</b> vários dentes do lado de trabalho dividem o contato lateral.</li>
+        </ul>
+      </div>
+      <div class="mini">
+        <h4>🔑 A "chave de oclusão" de Angle</h4>
+        <p>No encaixe ideal, a <b>cúspide mésio-vestibular do 1º molar superior</b> oclui exatamente no <b>sulco vestibular do 1º molar inferior</b>. Edward Angle (1899) usou essa relação como referência para classificar todas as mordidas — é o que você vai simular logo abaixo! 👇</p>
+      </div>
+    </div>
+
+    <div class="callout">⚠️ <b>Oclusão ≠ apenas estética.</b> Uma má oclusão (maloclusão) pode causar desgaste e fraturas dentárias, retração gengival, dor muscular e na ATM, dificuldade de mastigação e de fala — além do impacto no sorriso e na autoestima.</div>
+  </div>
+</section>
+
+<!-- ============ SIMULADOR ============ -->
+<section id="simulador">
+  <div class="card">
+    <h2><span class="num">🎛️</span> Simulador interativo da mordida</h2>
+    <p class="sub">Clique nas classes ou <b>arraste o controle</b> para mover a mandíbula (arcada inferior, em azul) para frente e para trás. Observe o 1º molar, o canino, os incisivos e o perfil do rosto mudando em tempo real.</p>
+
+    <div class="sim-controls">
+      <button class="sim-btn I active" data-classe="I" onclick="setClasse('I',this)">CLASSE I<small>Neutroclusão</small></button>
+      <button class="sim-btn II" data-classe="II" onclick="setClasse('II',this)">CLASSE II<small>Disto-oclusão</small></button>
+      <button class="sim-btn III" data-classe="III" onclick="setClasse('III',this)">CLASSE III<small>Mésio-oclusão</small></button>
+    </div>
+
+    <div class="sim-wrap">
+      <div>
+        <div class="sim-stage">
+          <svg viewBox="0 0 520 300" width="100%" role="img" aria-label="Esquema lateral dos dentes superiores e inferiores">
+            <!-- MAXILA (fixa) -->
+            <text x="14" y="26" font-size="13" font-weight="700" fill="#c2410c">MAXILA (superior — fixa)</text>
+            <g id="upperTeeth">
+              <!-- incisivo sup -->
+              <path d="M70 40 h44 v52 q0 26 -22 30 q-22 -4 -22 -30 z" fill="#fff7ed" stroke="#ea580c" stroke-width="2.5"/>
+              <!-- canino sup -->
+              <path d="M150 40 h40 v48 q0 30 -20 38 q-20 -8 -20 -38 z" fill="#ffedd5" stroke="#ea580c" stroke-width="2.5"/>
+              <!-- pré-molar sup -->
+              <path d="M226 40 h42 v46 q-6 14 -21 14 q-15 0 -21 -14 z" fill="#fff7ed" stroke="#ea580c" stroke-width="2.5"/>
+              <!-- 1º MOLAR sup: cúspide MV destacada -->
+              <path d="M310 40 h78 v44 q-8 16 -24 16 l-6 -14 q-4 -8 -10 0 l-8 16 q-22 0 -30 -18 z" fill="#fed7aa" stroke="#ea580c" stroke-width="2.5"/>
+              <circle cx="343" cy="98" r="8" fill="#ef476f" stroke="#fff" stroke-width="2"/>
+              <text x="300" y="132" font-size="11.5" font-weight="700" fill="#ef476f">● cúspide mésio-vestibular</text>
+              <text x="316" y="26" font-size="11" fill="#9a3412">1º molar sup.</text>
+            </g>
+
+            <!-- MANDÍBULA (móvel) -->
+            <g id="mandGroup">
+              <text x="14" y="292" font-size="13" font-weight="700" fill="#075985">MANDÍBULA (inferior — móvel)</text>
+              <!-- incisivo inf -->
+              <path d="M78 268 h36 v-44 q0 -22 18 -26 q18 4 18 26 v44 z" fill="#f0f9ff" stroke="#0284c7" stroke-width="2.5" transform="translate(-22,-6)"/>
+              <!-- canino inf -->
+              <path d="M158 268 h36 v-42 q0 -28 18 -34 q18 6 18 34 v42 z" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5" transform="translate(-22,-6)"/>
+              <!-- pré-molar inf -->
+              <path d="M234 268 h38 v-40 q-5 -14 -19 -14 q-14 0 -19 14 z" fill="#f0f9ff" stroke="#0284c7" stroke-width="2.5" transform="translate(-8,-4)"/>
+              <!-- 1º MOLAR inf: sulco vestibular -->
+              <path d="M306 268 h80 v-42 q-8 -16 -28 -16 l-6 12 q-4 8 -10 0 l-8 -14 q-20 0 -28 18 z" fill="#bae6fd" stroke="#0284c7" stroke-width="2.5"/>
+              <circle cx="343" cy="212" r="7" fill="#0bb4a6" stroke="#fff" stroke-width="2"/>
+              <text x="300" y="182" font-size="11.5" font-weight="700" fill="#0f766e">● sulco vestibular</text>
+              <text x="312" y="256" font-size="11" fill="#075985"></text>
+            </g>
+            <!-- seta movimento -->
+            <text id="arrowTxt" x="400" y="160" font-size="26" fill="#94a3b8"></text>
+          </svg>
+        </div>
+        <div class="legend">
+          <span><span class="dot" style="background:#fed7aa"></span>Dentes superiores</span>
+          <span><span class="dot" style="background:#bae6fd"></span>Dentes inferiores</span>
+          <span><span class="dot" style="background:#ef476f"></span>Cúspide-chave (sup.)</span>
+          <span><span class="dot" style="background:#0bb4a6"></span>Sulco-chave (inf.)</span>
+        </div>
+
+        <label for="slider" style="font-weight:700;font-size:14.5px;display:block;margin-top:14px">↔️ Arraste: posição da mandíbula</label>
+        <input type="range" id="slider" min="-30" max="30" value="0" step="1" oninput="onSlider(this.value)">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)"><span>◀ mandíbula para trás</span><span>mandíbula para frente ▶</span></div>
+
+        <div class="readout">
+          <div class="stat"><b id="statClasse">Classe I</b><span>Classificação</span></div>
+          <div class="stat"><b id="statOverjet">+2 mm</b><span>Overjet estimado</span></div>
+          <div class="stat"><b id="statMolar">Neutra</b><span>Relação do 1º molar</span></div>
+          <div class="stat"><b id="statPerfil">Reto</b><span>Perfil facial típico</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="sim-stage" style="text-align:center">
+          <svg viewBox="0 0 200 230" width="170" role="img" aria-label="Perfil facial">
+            <g id="profileGroup">
+              <!-- cabeça perfil -->
+              <path id="facePath" d="M120 15 q55 10 58 70 q1 22 -6 34 l14 26 q3 8 -6 10 l-4 18 q-1 8 -9 9 l-2 14 q-1 10 -12 11 l-34 2 q-30 -2 -42 -28 q-10 -22 -4 -44 q-14 -30 -6 -62 q10 -44 53 -60z" fill="#ffe3c2" stroke="#d99a55" stroke-width="2.5"/>
+              <circle cx="128" cy="86" r="5" fill="#132238"/>
+              <path id="nosePath" d="M172 96 l16 14 l-14 6" fill="none" stroke="#d99a55" stroke-width="2.5"/>
+              <!-- lábios/queixo móveis -->
+              <g id="jawProfile">
+                <path d="M168 138 q10 6 0 12" fill="none" stroke="#c2410c" stroke-width="3"/>
+                <path id="chinPath" d="M150 168 q16 10 30 2" fill="none" stroke="#d99a55" stroke-width="3"/>
+              </g>
+            </g>
+          </svg>
+          <div style="font-size:13px;color:var(--muted)">Perfil facial típico:<br><b id="perfilNome" style="color:var(--ink);font-size:15px">Reto / equilibrado</b></div>
+        </div>
+        <div class="callout blue" id="simDesc" style="margin-top:14px"></div>
+        <button class="btn" style="background:var(--orange);color:#fff;width:100%" onclick="toggleFact()">💡 Curiosidade clínica</button>
+        <div class="tooth-fact" id="factBox"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. AS TRÊS CLASSES ============ -->
+<section id="classes">
+  <h2 style="margin-bottom:6px"><span class="num" style="background:linear-gradient(135deg,var(--blue),var(--teal));color:#fff;width:36px;height:36px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:17px">2</span> As três classes de Angle (1899)</h2>
+  <p class="sub" style="color:var(--muted)">Angle classificou as mordidas olhando a relação <b>ântero-posterior</b> (frente–trás) entre o 1º molar superior e o 1º molar inferior, complementada pela relação dos caninos. Clique nas abas:</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="openTab('tabI',this)">🟢 Classe I</button>
+    <button class="tab" onclick="openTab('tabII',this)">🟠 Classe II</button>
+    <button class="tab" onclick="openTab('tabIII',this)">🟣 Classe III</button>
+  </div>
+
+  <!-- CLASSE I -->
+  <div class="tab-panel active" id="tabI">
+    <span class="tag" style="background:var(--teal)">Neutroclusão</span>
+    <h3>O que é</h3>
+    <p>A relação entre os molares está <b>correta</b>: a cúspide mésio-vestibular do 1º molar superior oclui no sulco vestibular do 1º molar inferior, e o canino superior oclui entre o canino e o 1º pré-molar inferiores. O problema, quando existe, está no <b>posicionamento individual dos dentes</b>, não na relação entre as arcadas.</p>
+    <div class="grid2">
+      <div class="mini"><h4>✅ Características</h4><ul>
+        <li>Relação molar e de caninos normal (a "chave de oclusão" encaixa).</li>
+        <li>Perfil facial geralmente <b>reto</b> e equilibrado.</li>
+        <li>Podem existir: <b>apinhamento</b> (dentes tortos por falta de espaço), diastemas (espaços), giroversões, dentes ectópicos.</li>
+        <li>Podem coexistir problemas verticais/transversais: mordida aberta, mordida profunda, mordida cruzada.</li>
+      </ul></div>
+      <div class="mini"><h4>🔍 Causas frequentes</h4><ul>
+        <li>Discrepância entre tamanho dos dentes e tamanho das arcadas (hereditário).</li>
+        <li>Perda precoce de dentes de leite sem mantenedor de espaço.</li>
+        <li>Hábitos: chupar dedo/chupeta prolongado, respiração bucal.</li>
+        <li>Dentes supranumerários ou retenção prolongada de decíduos.</li>
+      </ul></div>
+    </div>
+    <div class="callout teal">📌 <b>Não confunda:</b> Classe I <b>não significa mordida perfeita!</b> Significa apenas que a relação ântero-posterior dos molares está normal. Um paciente Classe I pode ter apinhamento severo e precisar de aparelho.</div>
+    <details><summary>🦷 Tratamento típico</summary><p>Ortodontia com aparelho fixo ou alinhadores para alinhar e nivelar; em apinhamentos severos, pode haver expansão da arcada ou extrações estratégicas. Se houver mordida cruzada/aberta associada, trata-se o problema específico. Contenção ao final para manter o resultado.</p></details>
+  </div>
+
+  <!-- CLASSE II -->
+  <div class="tab-panel" id="tabII">
+    <span class="tag" style="background:var(--orange)">Disto-oclusão</span>
+    <h3>O que é</h3>
+    <p>O 1º molar <b>inferior está para trás</b> (distal) em relação ao superior — como se a mandíbula (ou a arcada inferior) estivesse "recuada". A cúspide do molar superior oclui <b>à frente</b> do sulco do molar inferior. Pode ser dentária, esquelética (mandíbula pequena/recuada ou maxila avançada) ou mista. Possui duas divisões clássicas:</p>
+    <div class="grid2">
+      <div class="mini"><h4>🟠 Divisão 1 (II,1)</h4><ul>
+        <li>Incisivos superiores <b>inclinados para frente</b> (vestibularizados) — os famosos "dentes para frente".</li>
+        <li><b>Overjet aumentado</b> (frequentemente &gt; 4–5 mm).</li>
+        <li>Perfil <b>convexo</b>, lábio inferior atrás dos incisivos, possível incompetência labial (boca não fecha sem esforço).</li>
+        <li>Associada a respiração bucal e hábitos de sucção; maior risco de traumatismo nos incisivos.</li>
+      </ul></div>
+      <div class="mini"><h4>🟠 Divisão 2 (II,2)</h4><ul>
+        <li>Incisivos centrais superiores <b>inclinados para trás</b> (retroinclinados); laterais frequentemente vestibularizados/sobrepostos.</li>
+        <li><b>Overbite profundo</b> — incisivos superiores cobrem demais os inferiores (sobremordida profunda).</li>
+        <li>Overjet normal ou diminuído.</li>
+        <li>Face frequentemente mais "quadrada", terço inferior reduzido, sorriso com pouca exposição dos incisivos.</li>
+      </ul></div>
+    </div>
+    <div class="callout">🏷️ <b>Subdivisão:</b> quando a Classe II ocorre em <b>apenas um dos lados</b> (direito ou esquerdo), chama-se <b>Classe II, subdivisão direita/esquerda</b>. O mesmo termo vale para a Classe III.</div>
+    <details><summary>🦷 Tratamento típico</summary><p>Em crianças/adolescentes em crescimento: ortopedia funcional e aparelhos que estimulam o avanço mandibular ou restringem o crescimento da maxila (ex.: AEB/extra-bucal, propulsores). Em adultos sem crescimento: ortodontia de camuflagem (com ou sem extrações) ou, nos casos esqueléticos severos, <b>cirurgia ortognática</b> de avanço mandibular. A Divisão 2 exige cuidado especial com o controle do overbite.</p></details>
+  </div>
+
+  <!-- CLASSE III -->
+  <div class="tab-panel" id="tabIII">
+    <span class="tag" style="background:var(--purple)">Mésio-oclusão</span>
+    <h3>O que é</h3>
+    <p>O 1º molar <b>inferior está para frente</b> (mesial) em relação ao superior — a mandíbula (ou a arcada inferior) está "avançada". A cúspide do molar superior oclui <b>atrás</b> do sulco do molar inferior. Frequentemente há <b>mordida cruzada anterior</b>: os incisivos inferiores ficam à frente dos superiores (<b>overjet negativo</b>).</p>
+    <div class="grid2">
+      <div class="mini"><h4>✅ Características</h4><ul>
+        <li>Perfil facial <b>côncavo</b>; queixo proeminente.</li>
+        <li>Mordida cruzada anterior (dentes de baixo na frente dos de cima).</li>
+        <li>Pode ser <b>esquelética</b> (mandíbula grande/prognata e/ou maxila retruída), <b>dentária</b> ou <b>funcional</b>.</li>
+        <li>Pode haver compensações: incisivos superiores inclinados para frente e inferiores para trás, "escondendo" parcialmente o problema.</li>
+      </ul></div>
+      <div class="mini"><h4>🔍 Causas frequentes</h4><ul>
+        <li><b>Forte componente genético</b> — prognatismo mandibular costuma ser hereditário.</li>
+        <li>Crescimento excessivo da mandíbula ou deficiente da maxila.</li>
+        <li>Interferências dentárias que "empurram" a mandíbula para frente ao fechar (<b>pseudo-Classe III</b> funcional).</li>
+      </ul></div>
+    </div>
+    <div class="callout" style="border-color:var(--purple);background:#f1edff">⚠️ <b>Pseudo-Classe III:</b> a mandíbula desliza para frente por um contato prematuro, mas em Relação Cêntrica o paciente consegue encostar os incisivos "topo a topo". Diagnosticar isso muda completamente o tratamento — por isso o exame em RC é essencial!</div>
+    <details><summary>🦷 Tratamento típico</summary><p>Intervenção <b>precoce</b> é a regra de ouro: na infância, máscara facial de protração maxilar e expansão podem redirecionar o crescimento. Em adultos: camuflagem ortodôntica nos casos leves/moderados, ou <b>cirurgia ortognática</b> (recuo mandibular e/ou avanço maxilar) nos casos esqueléticos. Por poder piorar com o crescimento, a Classe III exige acompanhamento prolongado.</p></details>
+  </div>
+</section>
+
+<!-- ============ 3. COMPARAR ============ -->
+<section id="comparar">
+  <div class="card">
+    <h2><span class="num">3</span> Comparando lado a lado</h2>
+    <p class="sub">A tabela-resumo que cai em toda prova. Toque nos botões do simulador acima para ver cada linha "ao vivo".</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Característica</th><th>🟢 Classe I</th><th>🟠 Classe II</th><th>🟣 Classe III</th></tr>
+        <tr><td>Nome</td><td>Neutroclusão</td><td>Disto-oclusão</td><td>Mésio-oclusão</td></tr>
+        <tr><td>1º molar inferior</td><td>Posição normal em relação ao superior</td><td><b>Para trás</b> (distal)</td><td><b>Para frente</b> (mesial)</td></tr>
+        <tr><td>Cúspide MV do molar sup.</td><td>Oclui <b>no sulco</b> do molar inferior</td><td>Oclui <b>à frente</b> do sulco</td><td>Oclui <b>atrás</b> do sulco</td></tr>
+        <tr><td>Canino</td><td>Sup. entre canino e 1º pré-molar inf.</td><td>Inferior para trás</td><td>Inferior para frente</td></tr>
+        <tr><td>Overjet típico</td><td>Normal (2–3 mm)</td><td>Div. 1: <b>aumentado</b> • Div. 2: normal/diminuído</td><td><b>Negativo</b> (mordida cruzada anterior)</td></tr>
+        <tr><td>Perfil facial</td><td>Reto / equilibrado</td><td>Convexo</td><td>Côncavo</td></tr>
+        <tr><td>Ângulo ANB (cefalo.)*</td><td>≈ 0° a 4° (esquel. Classe I)</td><td>&gt; 4° (esquel. Classe II)</td><td>&lt; 0° (esquel. Classe III)</td></tr>
+        <tr><td>Exemplo do problema</td><td>Apinhamento, diastemas, giroversões</td><td>"Dentes para frente", queixo recuado</td><td>Queixo proeminente, dentes de baixo à frente</td></tr>
+      </table>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-top:8px">*O ANB classifica a relação <b>esquelética</b> (maxila × mandíbula). Atenção: a classe <b>dentária</b> de Angle e a classe <b>esquelética</b> nem sempre coincidem no mesmo paciente!</p>
+
+    <h3>🧭 Como memorizar em 5 segundos</h3>
+    <div class="grid3">
+      <div class="mini" style="border-top:5px solid var(--teal)"><h4>Classe I = "No lugar"</h4><p>O molar inferior está onde deveria. Pense no <b>"I" de Ideal</b> na relação molar.</p></div>
+      <div class="mini" style="border-top:5px solid var(--orange)"><h4>Classe II = "Inferior atrás"</h4><p>O <b>II parece duas pernas andando para trás</b>: a arcada inferior ficou para trás → dentes de cima "sobram" para frente.</p></div>
+      <div class="mini" style="border-top:5px solid var(--purple)"><h4>Classe III = "Inferior à frente"</h4><p>A mandíbula avança e o <b>queixo lidera</b>: dentes de baixo ultrapassam os de cima.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. DIAGNÓSTICO E TRATAMENTO ============ -->
+<section id="diagnostico">
+  <div class="card">
+    <h2><span class="num">4</span> Diagnóstico e tratamento — visão completa</h2>
+    <p class="sub">Classificar é só o começo. Marque as etapas conforme for estudando:</p>
+
+    <div id="checklist">
+      <label class="check-item"><input type="checkbox" onchange="updProgress(this)"><span><b>Exame clínico:</b> relação molar e de caninos (direita e esquerda), overjet, overbite, linhas médias, mordidas cruzadas, perfil facial e exame em Relação Cêntrica.</span></label>
+      <label class="check-item"><input type="checkbox" onchange="updProgress(this)"><span><b>Modelos de estudo / escaneamento:</b> medem apinhamento, discrepância de espaço e confirmam a classe em cada lado (detecta subdivisões).</span></label>
+      <label class="check-item"><input type="checkbox" onchange="updProgress(this)"><span><b>Radiografias:</b> panorâmica (visão geral) e telerradiografia lateral para a <b>análise cefalométrica</b> (SNA, SNB, ANB) — separa o que é dentário do que é esquelético.</span></label>
+      <label class="check-item"><input type="checkbox" onchange="updProgress(this)"><span><b>Fotografias intra e extraorais:</b> documentam sorriso, perfil e assimetrias; essenciais para planejar e acompanhar.</span></label>
+      <label class="check-item"><input type="checkbox" onchange="updProgress(this)"><span><b>Plano de tratamento:</b> ortopedia (em crescimento), ortodontia/camuflagem, ou cirurgia ortognática — definido por idade, gravidade e causa (dentária × esquelética).</span></label>
+      <label class="check-item"><input type="checkbox" onchange="updProgress(this)"><span><b>Contenção:</b> após corrigir, contenções fixas/removíveis mantêm o resultado enquanto os tecidos se reorganizam.</span></label>
+    </div>
+    <div class="progress"><div class="progress-bar" id="pbar"></div></div>
+    <p id="ptxt" style="font-size:13.5px;color:var(--muted)">0 de 6 etapas estudadas</p>
+
+    <div class="callout blue">🧠 <b>Regra de ouro:</b> trate a <b>causa</b>, não só a classe. Dois pacientes "Classe II" podem precisar de tratamentos opostos — um avanço de mandíbula em crescimento, outro cirurgia — dependendo de a origem ser dentária, esquelética ou funcional, e da idade.</div>
+  </div>
+</section>
+
+<!-- ============ 5. QUIZ ============ -->
+<section id="quiz">
+  <div class="card">
+    <h2><span class="num">5</span> Quiz — teste o que aprendeu 🎓</h2>
+    <p class="sub">Clique numa alternativa e receba a explicação na hora. São 6 perguntas.</p>
+    <div id="quizBox"></div>
+    <div id="scoreBox"></div>
+    <button class="btn" style="background:var(--blue);color:#fff;margin-top:14px" onclick="resetQuiz()">🔄 Refazer o quiz</button>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Material interativo de estudo — Oclusão e Classificação de Angle (Classes I, II e III).<br>
+  Conteúdo educacional: não substitui avaliação clínica individual. Em caso de dúvida sobre a sua mordida, procure um ortodontista. 🦷
+</footer>
+
+<script>
+/* ================= SIMULADOR ================= */
+const ESTADOS = {
+  I:  { dx:0,   classe:'Classe I',   overjet:'+2 mm',  molar:'Neutra ✔',            perfil:'Reto',             perfilNome:'Reto / equilibrado', chin:0,
+        desc:'<b>🟢 Classe I — Neutroclusão.</b> A cúspide mésio-vestibular do 1º molar superior encaixa <b>exatamente no sulco</b> do 1º molar inferior. É a relação de referência de Angle. Overjet normal (2–3 mm) e perfil equilibrado.' },
+  II: { dx:-26, classe:'Classe II',  overjet:'+7 mm',  molar:'Inferior distal (atrás)', perfil:'Convexo',       perfilNome:'Convexo — queixo recuado', chin:-14,
+        desc:'<b>🟠 Classe II — Disto-oclusão.</b> A mandíbula/arcada inferior está <b>para trás</b>: a cúspide do molar superior oclui <b>à frente</b> do sulco inferior. Na Divisão 1, os incisivos superiores se projetam e o <b>overjet aumenta</b>; o perfil fica convexo.' },
+  III:{ dx:26,  classe:'Classe III', overjet:'−3 mm',  molar:'Inferior mesial (frente)', perfil:'Côncavo',       perfilNome:'Côncavo — queixo proeminente', chin:14,
+        desc:'<b>🟣 Classe III — Mésio-oclusão.</b> A mandíbula/arcada inferior está <b>para frente</b>: a cúspide do molar superior oclui <b>atrás</b> do sulco inferior. Surge a <b>mordida cruzada anterior</b> (overjet negativo) e o perfil fica côncavo.' }
+};
+let estadoAtual = 'I';
+
+function aplicarEstado(key){
+  const e = ESTADOS[key]; estadoAtual = key;
+  document.getElementById('mandGroup').style.transform = `translateX(${e.dx}px)`;
+  document.getElementById('jawProfile').style.transform = `translateX(${e.chin}px)`;
+  document.getElementById('statClasse').textContent = e.classe;
+  document.getElementById('statOverjet').textContent = e.overjet;
+  document.getElementById('statMolar').textContent = e.molar;
+  document.getElementById('statPerfil').textContent = e.perfil;
+  document.getElementById('perfilNome').textContent = e.perfilNome;
+  document.getElementById('simDesc').innerHTML = e.desc;
+  document.getElementById('arrowTxt').textContent = key==='II' ? '⬅' : key==='III' ? '➡' : '✔';
+  document.getElementById('arrowTxt').setAttribute('fill', key==='I' ? '#0bb4a6' : '#94a3b8');
+  document.getElementById('slider').value = e.dx;
+  document.querySelectorAll('.sim-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.classe===key);
+  });
+}
+function setClasse(key, btn){ aplicarEstado(key); }
+function onSlider(v){
+  v = parseInt(v);
+  document.getElementById('mandGroup').style.transform = `translateX(${v}px)`;
+  const key = v < -9 ? 'II' : v > 9 ? 'III' : 'I';
+  const e = ESTADOS[key]; estadoAtual = key;
+  const oj = Math.round(2 - v*0.19);
+  document.getElementById('statClasse').textContent = e.classe;
+  document.getElementById('statOverjet').textContent = (oj>0?'+':'') + oj + ' mm';
+  document.getElementById('statMolar').textContent = e.molar;
+  document.getElementById('statPerfil').textContent = e.perfil;
+  document.getElementById('perfilNome').textContent = e.perfilNome;
+  document.getElementById('simDesc').innerHTML = e.desc;
+  document.getElementById('jawProfile').style.transform = `translateX(${v*0.55}px)`;
+  document.getElementById('arrowTxt').textContent = key==='II' ? '⬅' : key==='III' ? '➡' : '✔';
+  document.querySelectorAll('.sim-btn').forEach(b=> b.classList.toggle('active', b.dataset.classe===key));
+}
+aplicarEstado('I');
+
+/* curiosidade */
+const FACTS = [
+  'Edward Angle publicou sua classificação em 1899 e é considerado o "pai da Ortodontia moderna". Ela é usada até hoje no mundo inteiro!',
+  'O 1º molar permanente nasce por volta dos 6 anos — por isso é chamado de "molar dos 6 anos" e serve de referência antes mesmo de todos os dentes permanentes nascerem.',
+  'Um paciente pode ser Classe I de um lado e Classe II do outro: é a famosa "subdivisão". Por isso o exame é sempre feito lado a lado.',
+  'Na Classe II, Divisão 1, o overjet aumentado eleva muito o risco de fratura dos incisivos em quedas — um dos motivos para tratar cedo.',
+  'A Classe III esquelética tem forte componente genético: o prognatismo era tão marcante na família Habsburgo que ficou conhecido como "mandíbula de Habsburgo".'
+];
+let factIdx = 0, factVisible = false;
+function toggleFact(){
+  const box = document.getElementById('factBox');
+  if(!factVisible){ box.style.display='block'; factVisible=true; }
+  box.innerHTML = '💡 ' + FACTS[factIdx % FACTS.length];
+  factIdx++;
+}
+
+/* ================= TABS ================= */
+function openTab(id, btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ================= CHECKLIST ================= */
+function updProgress(cb){
+  cb.closest('.check-item').classList.toggle('done', cb.checked);
+  const total = document.querySelectorAll('#checklist input').length;
+  const done = document.querySelectorAll('#checklist input:checked').length;
+  document.getElementById('pbar').style.width = (done/total*100)+'%';
+  document.getElementById('ptxt').textContent = done + ' de ' + total + ' etapas estudadas' + (done===total ? ' — Parabéns, diagnóstico completo! 🎉' : '');
+}
+
+/* ================= QUIZ ================= */
+const PERGUNTAS = [
+  { q:'1. Na oclusão ideal de Angle, a cúspide mésio-vestibular do 1º molar superior oclui onde?',
+    opts:['No sulco vestibular do 1º molar inferior','Na fossa central do 2º molar inferior','Atrás do 1º molar inferior','Entre o canino e o pré-molar inferiores'], certa:0,
+    exp:'✔ É a famosa "chave de oclusão" de Angle — a referência da Classe I.' },
+  { q:'2. Paciente com 1º molar inferior posicionado PARA TRÁS em relação ao superior. Qual a classe?',
+    opts:['Classe I','Classe II','Classe III','Classe IV'], certa:1,
+    exp:'✔ Classe II = disto-oclusão: a arcada inferior está distal (atrás).' },
+  { q:'3. Qual característica define a Classe II, Divisão 1?',
+    opts:['Incisivos centrais superiores retroinclinados','Overjet negativo','Incisivos superiores vestibularizados e overjet aumentado','Mordida cruzada anterior'], certa:2,
+    exp:'✔ Na Divisão 1 os incisivos superiores se projetam para frente e o overjet aumenta. Retroinclinação dos centrais é marca da Divisão 2.' },
+  { q:'4. Um paciente Classe I pode precisar de aparelho?',
+    opts:['Não, Classe I é a mordida perfeita','Sim: pode haver apinhamento, diastemas e giroversões','Só se tiver dor na ATM','Apenas com cirurgia'], certa:1,
+    exp:'✔ Classe I indica apenas relação molar normal — os dentes podem estar apinhados ou mal posicionados individualmente.' },
+  { q:'5. Overjet negativo (incisivos inferiores à frente dos superiores) é típico de qual classe?',
+    opts:['Classe I','Classe II, Divisão 2','Classe III','Nenhuma — isso é normal'], certa:2,
+    exp:'✔ É a mordida cruzada anterior, sinal clássico da Classe III (mésio-oclusão).' },
+  { q:'6. Na cefalometria, um ANB de −2° sugere relação esquelética de:',
+    opts:['Classe I esquelética','Classe II esquelética','Classe III esquelética','Não é possível saber'], certa:2,
+    exp:'✔ ANB ≈ 0–4° = Classe I esquelética; > 4° = Classe II; < 0° = Classe III (mandíbula à frente da maxila).' },
+];
+let acertos = 0, respondidas = 0;
+
+function renderQuiz(){
+  acertos = 0; respondidas = 0;
+  document.getElementById('scoreBox').style.display = 'none';
+  const box = document.getElementById('quizBox'); box.innerHTML = '';
+  PERGUNTAS.forEach((p, qi)=>{
+    const div = document.createElement('div'); div.className = 'quiz-q';
+    div.innerHTML = '<h4>'+p.q+'</h4>';
+    p.opts.forEach((o, oi)=>{
+      const b = document.createElement('button'); b.className='opt'; b.textContent = o;
+      b.onclick = ()=> responder(b, div, p, oi);
+      div.appendChild(b);
+    });
+    const f = document.createElement('div'); f.className='feedback'; div.appendChild(f);
+    box.appendChild(div);
+  });
+}
+function responder(btn, div, p, oi){
+  const opts = div.querySelectorAll('.opt');
+  opts.forEach(o=>o.disabled = true);
+  const f = div.querySelector('.feedback');
+  if(oi === p.certa){ btn.classList.add('correct'); acertos++; f.className='feedback ok'; }
+  else { btn.classList.add('wrong'); opts[p.certa].classList.add('correct'); f.className='feedback no'; }
+  f.innerHTML = (oi===p.certa ? '<b>Correto!</b> ' : '<b>Não foi dessa vez.</b> ') + p.exp;
+  respondidas++;
+  if(respondidas === PERGUNTAS.length){
+    const s = document.getElementById('scoreBox');
+    s.style.display='block';
+    const msg = acertos===6 ? '🏆 Perfeito! Você domina as Classes de Angle!' : acertos>=4 ? '🎉 Muito bem! Revise os pontos que errou acima.' : '📚 Bom começo! Volte ao simulador e às abas e tente de novo.';
+    s.innerHTML = 'Você acertou ' + acertos + ' de ' + PERGUNTAS.length + '<br><span style="font-size:15px">'+msg+'</span>';
+    s.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+}
+function resetQuiz(){ renderQuiz(); document.getElementById('quiz').scrollIntoView({behavior:'smooth'}); }
+renderQuiz();
+</script>
+</body>
+</html>
