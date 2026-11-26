@@ -1,0 +1,106 @@
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--tap-min);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-md);
+  letter-spacing: 0.01em;
+  padding: 0 var(--space-5);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.primary {
+  background: linear-gradient(180deg, #ff9068 0%, var(--color-coral) 55%, var(--color-coral-dark) 100%);
+  color: #fff;
+  box-shadow: var(--shadow-accent);
+}
+
+.primary:active:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(255, 122, 89, 0.28);
+}
+
+.secondary {
+  background: var(--bg-surface-strong);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid var(--color-line);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.ghost:active:not(:disabled) {
+  background: rgba(58, 46, 42, 0.05);
+}
+
+.danger {
+  background: #fdeceb;
+  color: #b4402f;
+  border: 1.5px solid rgba(180, 64, 47, 0.16);
+}
+
+.md {
+  min-height: var(--tap-min);
+  font-size: var(--text-md);
+}
+
+.lg {
+  min-height: 54px;
+  font-size: var(--text-lg);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  animation: spin 700ms linear infinite;
+}
+
+.secondary .spinner,
+.ghost .spinner,
+.danger .spinner {
+  border-color: rgba(58, 46, 42, 0.2);
+  border-top-color: var(--color-ink);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

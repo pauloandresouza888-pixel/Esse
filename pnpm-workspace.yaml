@@ -1,0 +1,8 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Build only the native/optimized packages we actually need.
+allowBuilds:
+  esbuild: true
+  sharp: true

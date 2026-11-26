@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" role="img" aria-label="Vida Online">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFB07C" />
+      <stop offset="0.55" stop-color="#FF8B62" />
+      <stop offset="1" stop-color="#F06B4A" />
+    </linearGradient>
+    <linearGradient id="roof" x1="170" y1="160" x2="360" y2="290" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF4DF" />
+      <stop offset="1" stop-color="#FFE3BC" />
+    </linearGradient>
+    <linearGradient id="wall" x1="176" y1="270" x2="330" y2="410" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" />
+      <stop offset="1" stop-color="#FFF2DE" />
+    </linearGradient>
+    <linearGradient id="door" x1="232" y1="322" x2="292" y2="410" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8FD6B5" />
+      <stop offset="1" stop-color="#54AE8A" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="118" fill="url(#bg)" />
+  <circle cx="128" cy="104" r="42" fill="#FFFFFF" opacity="0.14" />
+  <circle cx="404" cy="384" r="66" fill="#FFFFFF" opacity="0.1" />
+  <ellipse cx="256" cy="428" rx="132" ry="18" fill="#B84E33" opacity="0.3" />
+  <rect x="318" y="186" width="34" height="66" rx="14" fill="#E9A278" />
+  <rect x="180" y="262" width="152" height="150" rx="26" fill="url(#wall)" />
+  <path d="M256 168 388 286c6 5 3 15-5 15H129c-9 0-11-10-5-15L256 168Z" fill="url(#roof)" />
+  <path d="M232 412v-58a24 24 0 0 1 48 0v58" fill="url(#door)" />
+  <circle cx="270" cy="364" r="4.5" fill="#FFFDF4" />
+  <circle cx="208" cy="310" r="15" fill="#9CCFEF" stroke="#FFFFFF" stroke-width="7" />
+  <circle cx="306" cy="310" r="15" fill="#9CCFEF" stroke="#FFFFFF" stroke-width="7" />
+  <path d="M352 152c7-11 24-8 24 5 0 11-13 19-24 27-11-8-24-16-24-27 0-13 17-16 24-5Z" fill="#FFD2DA" />
+  <path d="M142 300c0-9 7-16 16-16s16 7 16 16v16h-32v-16Z" fill="#7FC8A9" />
+  <path d="M150 300c0-5 4-9 8-9s8 4 8 9v8h-16v-8Z" fill="#5FB894" opacity="0.6" />
+</svg>

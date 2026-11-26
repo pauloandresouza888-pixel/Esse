@@ -1,0 +1,37 @@
+.card {
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+}
+
+.warm {
+  background: linear-gradient(160deg, #fff7ec 0%, #ffe9d8 100%);
+}
+
+.mint {
+  background: linear-gradient(160deg, #f0faf4 0%, #ddf1e7 100%);
+}
+
+.lilac {
+  background: linear-gradient(160deg, #f7f2ff 0%, #ebe2fb 100%);
+}
+
+.interactive {
+  cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.interactive:active {
+  transform: scale(0.985);
+  box-shadow: 0 2px 6px rgba(122, 84, 62, 0.08);
+}
+
+@media (hover: hover) {
+  .interactive:hover {
+    box-shadow: var(--shadow-md);
+  }
+}

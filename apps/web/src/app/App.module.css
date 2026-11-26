@@ -1,0 +1,19 @@
+.error {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.retry {
+  min-height: var(--tap-min);
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-pill);
+  background: var(--color-coral);
+  color: #fff;
+  font-weight: 700;
+}
