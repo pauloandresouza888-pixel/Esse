@@ -655,6 +655,22 @@ export interface FurnitureSpec {
   anim?: 'sway' | 'flicker' | 'none';
 }
 
+/** Simple wooden bench for the outdoor furniture set. */
+export function benchSvg(): string {
+  return svg(
+    112,
+    62,
+    `
+    <ellipse cx="56" cy="57" rx="50" ry="4" fill="${ART.shadow}" opacity="0.34" />
+    <rect x="12" y="15" width="88" height="9" rx="4" fill="${ART.woodDark}" />
+    <rect x="8" y="6" width="96" height="13" rx="5" fill="${ART.wood}" />
+    <rect x="17" y="24" width="8" height="28" rx="3" fill="${ART.woodDark}" />
+    <rect x="87" y="24" width="8" height="28" rx="3" fill="${ART.woodDark}" />
+    <rect x="13" y="29" width="86" height="5" rx="2" fill="${ART.wood}" />
+  `,
+  );
+}
+
 export const FURNITURE: readonly FurnitureSpec[] = [
   { key: 'bed', svg: () => bedSvg(), w: 120, h: 84, shadow: 1.05, labelKey: 'items.bed', anim: 'none' },
   { key: 'sofa', svg: () => sofaSvg(), w: 104, h: 76, shadow: 1.1, labelKey: 'items.sofa', anim: 'none' },
@@ -676,6 +692,13 @@ export const FURNITURE: readonly FurnitureSpec[] = [
   // The catalog item is `lamp` and its texture key is `room-lamp`, so the spec
   // key must match the item id even though the drawing function is `floorLampSvg`.
   { key: 'lamp', svg: () => floorLampSvg(), w: 46, h: 118, shadow: 0.8, labelKey: 'items.lamp', anim: 'none' },
+  // Phase 2 store: items that existed in the catalog but had no room art yet.
+  { key: 'tv', svg: () => tvSvg(), w: 104, h: 88, shadow: 1, labelKey: 'items.tv', anim: 'none' },
+  { key: 'desk', svg: () => deskSvg(), w: 112, h: 86, shadow: 0.95, labelKey: 'items.desk', anim: 'none' },
+  { key: 'piano', svg: () => pianoSvg(), w: 120, h: 104, shadow: 1.1, labelKey: 'items.piano', anim: 'none' },
+  { key: 'treadmill', svg: () => treadmillSvg(), w: 96, h: 96, shadow: 0.9, labelKey: 'items.treadmill', anim: 'none' },
+  { key: 'mirror', svg: () => mirrorSvg(), w: 54, h: 116, shadow: 0.7, labelKey: 'items.mirror', anim: 'none' },
+  { key: 'bench', svg: () => benchSvg(), w: 112, h: 62, shadow: 1, labelKey: 'items.bench', anim: 'none' },
 ] as const;
 
 export const TEXTURES = {
@@ -689,3 +712,104 @@ export const TEXTURES = {
   dust: () => dustSvg(),
   steam: () => showerSteamSvg(),
 } as const;
+
+/* -------------------------------------------------------------------------- */
+/*                            PHASE 2 STORE ITEMS                             */
+/* -------------------------------------------------------------------------- */
+
+/** Flat TV on a low media console. */
+export function tvSvg(): string {
+  return svg(
+    104,
+    88,
+    `
+    <rect x="6" y="44" width="92" height="36" rx="6" fill="${ART.wood}" />
+    <rect x="10" y="48" width="84" height="12" rx="4" fill="${ART.woodLight}" />
+    <rect x="14" y="6" width="76" height="46" rx="6" fill="${ART.screen}" />
+    <rect x="18" y="10" width="68" height="38" rx="4" fill="${ART.screenGlow}" opacity="0.55" />
+    <path d="M30 40l12-12 9 8 8-6 15 12" stroke="${ART.white}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" />
+    <circle cx="61" cy="47" r="2.4" fill="${ART.inkSoft}" opacity="0.5" />
+    <rect x="48" y="52" width="8" height="4" rx="2" fill="${ART.metalDark}" />
+    <rect x="20" y="78" width="6" height="8" rx="2" fill="${ART.woodDark}" />
+    <rect x="78" y="78" width="6" height="8" rx="2" fill="${ART.woodDark}" />
+  `,
+  );
+}
+
+/** Desk with a monitor, a keyboard and a mug (programming/study). */
+export function deskSvg(): string {
+  return svg(
+    112,
+    86,
+    `
+    <rect x="2" y="52" width="108" height="9" rx="4" fill="${ART.woodLight}" />
+    <rect x="2" y="61" width="108" height="5" rx="2" fill="${ART.wood}" />
+    <rect x="8" y="66" width="7" height="20" rx="2" fill="${ART.wood}" />
+    <rect x="97" y="66" width="7" height="20" rx="2" fill="${ART.wood}" />
+    <rect x="38" y="16" width="44" height="30" rx="4" fill="${ART.screen}" />
+    <rect x="42" y="20" width="36" height="22" rx="2" fill="${ART.screenGlow}" opacity="0.6" />
+    <rect x="56" y="46" width="8" height="7" rx="2" fill="${ART.metalDark}" />
+    <rect x="48" y="52" width="24" height="3" rx="1.5" fill="${ART.metalDark}" />
+    <rect x="16" y="48" width="26" height="6" rx="2" fill="${ART.white}" />
+    <rect x="76" y="40" width="12" height="14" rx="3" fill="${ART.coral}" />
+    <path d="M88 43h5a4 4 0 0 1 0 8h-5" stroke="${ART.coralDark}" stroke-width="2.5" stroke-linecap="round" />
+  `,
+  );
+}
+
+/** Upright piano with a small bench. */
+export function pianoSvg(): string {
+  return svg(
+    120,
+    104,
+    `
+    <rect x="6" y="8" width="108" height="62" rx="6" fill="${ART.ink}" />
+    <rect x="12" y="14" width="96" height="18" rx="3" fill="${ART.inkSoft}" opacity="0.55" />
+    <rect x="10" y="52" width="100" height="14" rx="3" fill="${ART.white}" />
+    ${Array.from({ length: 13 }, (_, index) => {
+      const x = 13 + index * 7.4;
+      return `<rect x="${x.toFixed(1)}" y="52" width="2.6" height="8" rx="1" fill="${ART.ink}" />`;
+    }).join('')}
+    <rect x="10" y="66" width="100" height="8" rx="3" fill="${ART.woodDark}" />
+    <rect x="14" y="74" width="8" height="24" rx="2" fill="${ART.woodDark}" />
+    <rect x="98" y="74" width="8" height="24" rx="2" fill="${ART.woodDark}" />
+    <rect x="38" y="86" width="44" height="7" rx="3" fill="${ART.wood}" />
+    <rect x="42" y="93" width="5" height="9" rx="2" fill="${ART.woodDark}" />
+    <rect x="73" y="93" width="5" height="9" rx="2" fill="${ART.woodDark}" />
+  `,
+  );
+}
+
+/** Treadmill (fitness skill). */
+export function treadmillSvg(): string {
+  return svg(
+    96,
+    96,
+    `
+    <rect x="4" y="58" width="88" height="16" rx="6" fill="${ART.metalDark}" />
+    <rect x="10" y="52" width="76" height="10" rx="4" fill="${ART.inkSoft}" opacity="0.7" />
+    ${Array.from({ length: 7 }, (_, index) => {
+      const x = 14 + index * 11;
+      return `<rect x="${x}" y="53" width="2" height="8" rx="1" fill="${ART.metal}" opacity="0.8" />`;
+    }).join('')}
+    <path d="M18 52V18a6 6 0 0 1 6-6h48a6 6 0 0 1 6 6v34" stroke="${ART.metal}" stroke-width="6" stroke-linecap="round" />
+    <rect x="20" y="8" width="56" height="12" rx="4" fill="${ART.screen}" />
+    <rect x="24" y="11" width="48" height="6" rx="2" fill="${ART.mint}" opacity="0.8" />
+    <rect x="8" y="70" width="80" height="6" rx="3" fill="${ART.metalDark}" />
+  `,
+  );
+}
+
+/** Full-length mirror (trainer of the "look good" mood). */
+export function mirrorSvg(): string {
+  return svg(
+    54,
+    116,
+    `
+    <rect x="4" y="0" width="46" height="112" rx="21" fill="${ART.wood}" />
+    <rect x="9" y="5" width="36" height="102" rx="17" fill="${ART.glass}" />
+    <path d="M18 30l14-14M18 50l24-24" stroke="${ART.glassEdge}" stroke-width="4" stroke-linecap="round" opacity="0.85" />
+    <rect x="10" y="112" width="34" height="4" rx="2" fill="${ART.woodDark}" />
+  `,
+  );
+}

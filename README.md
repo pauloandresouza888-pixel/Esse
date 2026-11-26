@@ -5,11 +5,9 @@
 
 ![Sala da casa Aurora](docs/screenshots/room-portrait.png)
 
-**Status: Fase 1 — solo jogável.** O jogo já tem criação de personagem em 5
-etapas, movimento por toque com pathfinding, 5 objetos interativos (cama,
-geladeira, chuveiro, banheiro, sofá) que alteram as necessidades, loop de
-necessidades ligado ao relógio, sono com despertar automático, tutorial guiado,
-áudio lo-fi procedural e persistência completa.
+**Status: Fase 2 — vida e IA.** Além do loop solo, o jogo agora tem IA autônoma
+com emoções e memórias, 5 carreiras, habilidades com XP, loja e construção
+persistida, bairro com 3 lugares e 5 NPCs em rotina, e amizade/romance locais.
 
 Este é um projeto original: nenhum nome, marca, interface, asset ou personagem
 de jogos existentes foi usado. O gênero "simulação de vida" é inspiração, não
@@ -24,7 +22,7 @@ o mesmo pacote de regras — é isso que garante que cliente e servidor nunca
 
 ## Índice
 
-1. [O que já funciona (Fase 1)](#o-que-já-funciona-fase-1)
+1. [O que já funciona (Fase 2)](#o-que-já-funciona-fase-2)
 2. [Como rodar](#como-rodar)
 3. [Como testar no celular](#como-testar-no-celular)
 4. [Arquitetura em 5 linhas](#arquitetura-em-5-linhas)
@@ -37,12 +35,12 @@ o mesmo pacote de regras — é isso que garante que cliente e servidor nunca
 11. [Desempenho e PWA](#desempenho-e-pwa)
 12. [Suposições registradas](#suposições-registradas)
 13. [Critérios de aceite da Fase 1](#critérios-de-aceite-da-fase-1)
-14. [Pendências e próximos passos (Fase 2)](#pendências-e-próximos-passos-fase-2)
-15. [Mudanças de arquivos na Fase 1](#mudanças-de-arquivos-na-fase-1)
+14. [Próximos passos (Fase 3)](#próximos-passos-fase-3)
+15. [Mudanças de arquivos](#mudanças-de-arquivos)
 
 ---
 
-## O que já funciona (Fase 1)
+## O que já funciona (Fase 2)
 
 | Área | Entregue |
 | --- | --- |
@@ -53,14 +51,27 @@ o mesmo pacote de regras — é isso que garante que cliente e servidor nunca
 | **Loop de necessidades** | 7 necessidades com decaimento por hora de jogo, crítico < 20 com atalho "!" no HUD (leva ao objeto que resolve), humor agregado, efeitos do catálogo aplicados proporcionalmente durante a ação |
 | **Sono** | 30× mais rápido; acorda sozinho ao encher a energia, ao ficar com fome (≤ 15) ou após o horário do sono; aviso claro ao acordar |
 | **Relógio** | 1 dia = 24 min reais (12/24/48 min nos Ajustes), dia/noite na cena (sol, luar, luzes acesas), relógio do HUD sincronizado com a simulação |
-| **Persistência** | Necessidades, relógio, posição, ação em andamento, tutorial e dinheiro salvos; catch-up de até 8 h de jogo ao reabrir; backup e migração v2 |
+| **Persistência** | Necessidades, relógio, posição, ação em andamento, tutorial e dinheiro salvos; catch-up de até 8 h de jogo ao reabrir; backup e migração v4 |
 | **Tutorial** | 5 passos guiados por flags no save (andar → comer → tomar banho → banheiro → dormir), com "Mostrar onde é" (pulsa o móvel) e "Pular" |
 | **Áudio** | Trilha lo-fi procedural (Fmaj7–Em7–Dm7–Cmaj7, pad + baixo + hi-hat) e 11 efeitos curtos, volumes e vibração pelos Ajustes, desbloqueio no primeiro toque |
 | **HUD** | Relógio, dia, dinheiro, humor, 7 barras `role="meter"`, retrato do personagem, pausa, esconder HUD, avisos de necessidade crítica |
 | **Base da Fase 0** | PWA instalável e offline, i18n PT/EN, tema, acessibilidade, configurações, código de amigo |
+| **Utility AI** | Ações pontuadas por necessidades, traços, aspiração, hora e objeto; seed fixa por perfil/minuto; personagem come com fome crítica e evita dormir de dia com energia cheia |
+| **Emoções e memórias** | 10 emoções com efeitos temporários no humor, até 12 memórias recentes |
+| **Carreiras e skills** | 5 carreiras, 5 níveis, turnos, salário, promoção, falta e XP de habilidade por trabalho/objeto |
+| **Loja e construção** | 20 itens com preços, compra debita moedas, saldo insuficiente bloqueado, inventário, colocação automática em grade 22×16 e remoção; até 200 extras colocados |
+| **Bairro e relações** | Praça, café e parque; 5 NPCs com agendas horárias determinísticas; conversar aumenta amizade e flertar aumenta romance |
 
-Ainda **não** existe (planejado para as próximas fases): IA autônoma, emoções,
-carreiras, loja, construção, bairro, contas e multiplayer.
+Ainda **não** existe: contas online, busca real de amigos, visitas sincronizadas
+e multiplayer — planejados para as Fases 3 e 4.
+
+---
+
+## Jogo publicado
+
+URL pública no GitHub Pages: <https://pauloandresouza888-pixel.github.io/Esse/>.
+O deploy é feito pelo workflow `.github/workflows/deploy.yml`; a aplicação usa a
+base `/Esse/` e inclui `404.html` para permitir abrir/atualizar rotas internas.
 
 ---
 
@@ -176,7 +187,7 @@ vida-online/
 │           ├── simulation.ts     # relógio × necessidades × ações (função pura)
 │           ├── tutorial.ts       # máquina de estados do tutorial
 │           ├── room.ts           # grade de colisão, caminho, célula de aproximação
-│           ├── save.ts           # esquema versionado + migração v2
+│           ├── save.ts           # esquema versionado + migração v4
 │           └── __tests__/        # testes das regras
 ├── docs/
 │   ├── ARCHITECTURE.md           # decisões técnicas detalhadas
@@ -404,29 +415,21 @@ prévia ao vivo e animação de dormir/sentado.
 
 ---
 
-## Pendências e próximos passos (Fase 2)
+## Próximos passos (Fase 3)
 
-Itens conscientemente **deixados para depois**:
+A Fase 2 está implementada e passa por `pnpm check` (typecheck, testes e build).
+A próxima etapa é contas e social online: servidor autoritativo, login convidado/e-mail,
+solicitações de amizade reais, presença e visita sincronizada às casas. O pacote
+`@vida/shared` permanece sem dependência de React/Phaser para ser reutilizado pelo
+servidor.
 
-1. **IA autônoma (Utility AI)**: hoje o personagem só age por toque. A Fase 2
-   escolhe ações por utilidade (necessidade × traços × distância).
-2. **Emoções**: `wellbeing` existe e alimenta o humor, mas emoções nomeadas e
-   eventos de humor entram junto com a IA.
-3. **Trabalho e dinheiro**: 5 carreiras e 7 habilidades já estão no catálogo,
-   mas ainda não há turno de trabalho nem gasto.
-4. **Loja e construção**: os 20 itens e os preços existem no catálogo; falta a
-   tela de compra e o editor de layout.
-5. **Bairro e NPCs**: 15+ NPCs, casas vizinhas e visitas.
-6. **Alternativa textual da cena** para leitor de tela (Fase 5).
-
-Dívidas técnicas registradas: a cena Phaser não roda em jsdom (validada por
-scripts de arte + teste manual), e o bundle do Phaser é grande (332 kB gzip) —
-ele é carregado sob demanda, mas na Fase 5 vale reavaliar um renderer 2D próprio
-se o jogo crescer.
+Dívidas técnicas conhecidas: a cena Phaser não roda em jsdom (revisada por testes
+de regras/arte e preview estático), e o bundle do Phaser é grande (~332 kB gzip) —
+ele segue carregado sob demanda; vale reavaliar um renderer 2D próprio na Fase 5.
 
 ---
 
-## Mudanças de arquivos na Fase 1
+## Mudanças de arquivos
 
 **`packages/shared`** — regras novas/reescritas
 `src/simulation.ts` (novo: `advanceWorld`, `beginAction`, `cancelAction`,
@@ -437,7 +440,7 @@ se o jogo crescer.
 `ROOM_PLACEMENTS` com `flat`, `TUTORIAL_STEPS`, `itemForNeed`,
 `fixInteractionFor`, itens `stove`/`sink`), `src/character.ts`
 (reescrito: 10 opções por categoria, `validateCharacterDraft`,
-`createCharacterForTest`), `src/save.ts` (v2 + migração),
+`createCharacterForTest`), `src/save.ts` (v4 + migração),
 `src/__tests__/simulation.test.ts` (novo).
 
 **`apps/web/src/game`** — cena e ponte
@@ -473,7 +476,5 @@ final), `game/__tests__/sceneData.test.ts`, `stores/__tests__/lifeLoop.test.ts`,
 
 ## Próxima fase
 
-A **Fase 2** (IA de utilidade, emoções, carreiras, loja, construção e bairro)
-só começa depois do seu "ok" — e depois de testar esta: criar personagem, andar
-pela casa, comer, dormir, fechar e reabrir. Qualquer ajuste de arte, ritmo ou
-texto entra antes de seguir.
+A Fase 2 reuniu autonomia, economia, construção e vida social local. A próxima
+etapa planejada é a Fase 3 (contas e amigos online).

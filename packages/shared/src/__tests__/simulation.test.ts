@@ -38,6 +38,9 @@ import {
   TUTORIAL_STEPS,
   tutorialStepForSignal,
   validateCharacterDraft,
+  createNewSave,
+  createCharacterForTest,
+  SAVE_VERSION,
   type Profile,
   type SimWorld,
 } from '../index';
@@ -328,7 +331,7 @@ describe('save v1 migration', () => {
       stats: { playtimeMs: 0, sessions: 1 },
     };
     const migrated = migrateSave(v1);
-    expect(migrated?.version).toBe(2);
+    expect(migrated?.version).toBe(SAVE_VERSION);
     expect(migrated?.profile.tutorialStep).toBe(0);
     expect(migrated?.profile.tutorialDone).toBe(false);
     expect(migrated?.world.action).toBeNull();
@@ -337,6 +340,44 @@ describe('save v1 migration', () => {
     expect(migrated?.world.character.appearance.skin).toBe('skin-3');
     expect(migrated?.world.character.appearance.hairStyle).toBe('bun');
     expect(migrated?.world.character.appearance.accessory).toBe('none');
+    // Phase 2 fields are filled with safe defaults, never undefined.
+    expect(migrated?.world.career).toBeNull();
+    expect(migrated?.world.autonomous).toBe(true);
+    expect(migrated?.world.emotions).toEqual([]);
+    expect(migrated?.world.memories).toEqual([]);
+    expect(migrated?.world.skills.cooking).toBe(0);
+    expect(migrated?.world.house.inventory).toEqual([]);
+    expect(migrated?.world.house.placed).toEqual([]);
+    expect(migrated?.world.relationships).toEqual({});
+  });
+
+  it('drops an unknown career but keeps a valid one', () => {
+    const base = createNewSave(
+      {
+        id: 'player-1',
+        displayName: 'Ana',
+        friendCode: 'ABCD2345',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        isGuest: true,
+        tutorialDone: true,
+        tutorialStep: 5,
+      },
+      createCharacterForTest(),
+      createNeeds(),
+    );
+    const withCareer = {
+      ...base,
+      world: {
+        ...base.world,
+        career: { career: 'programmer', level: 3, performance: 40, shiftsWorked: 8 },
+      },
+    };
+    expect(migrateSave(withCareer)?.world.career?.level).toBe(3);
+    const broken = {
+      ...base,
+      world: { ...base.world, career: { career: 'astronaut', level: 2 } },
+    };
+    expect(migrateSave(broken)?.world.career).toBeNull();
   });
 });
 

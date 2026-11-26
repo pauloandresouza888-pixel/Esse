@@ -26,7 +26,7 @@ export function FriendsScreen() {
   const [showCopyHint, setShowCopyHint] = useState(false);
 
   const friendCode = profile?.friendCode ?? '--------';
-  const inviteLink = `${window.location.origin}/?amigo=${friendCode}`;
+  const inviteLink = `${window.location.origin}${import.meta.env.BASE_URL}?amigo=${friendCode}`;
 
   const copy = async (text: string, successKey: string) => {
     try {

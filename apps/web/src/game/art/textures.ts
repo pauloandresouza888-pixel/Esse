@@ -7,7 +7,7 @@
  * so the scene never draws shapes by hand.
  */
 import Phaser from 'phaser';
-import { ROOM_ART_SIZES, ROOM_PLACEMENTS, type Appearance } from '@vida/shared';
+import { ROOM_ART_SIZES, ROOM_PLACEMENTS, type Appearance, type RoomPlacement } from '@vida/shared';
 import { characterSvg, type CharacterMood } from './characterSvg';
 import { FURNITURE, TEXTURES } from './roomSvg';
 import { roomBackgroundSvg } from './roomBackground';
@@ -77,10 +77,11 @@ export async function loadRoomTextures(
   scene: Phaser.Scene,
   appearance: Appearance,
   quality: 'low' | 'medium' | 'high' = 'high',
+  placements: readonly RoomPlacement[] = ROOM_PLACEMENTS,
 ): Promise<TextureManifest> {
   const mood: CharacterMood = 'happy';
   const jobs: Promise<void>[] = [];
-  const wanted = new Set(ROOM_PLACEMENTS.map((placement) => placement.itemId));
+  const wanted = new Set(placements.map((placement) => placement.itemId));
 
   jobs.push(addSvgTexture(scene, BACKGROUND_KEY, roomBackgroundSvg(), quality === 'low' ? 1.25 : 2));
 
@@ -103,7 +104,7 @@ export async function loadRoomTextures(
 
   await Promise.all(jobs);
   return {
-    furnitureKeys: ROOM_PLACEMENTS.map((placement) => `room-${placement.itemId}`).filter((key) =>
+    furnitureKeys: placements.map((placement) => `room-${placement.itemId}`).filter((key) =>
       scene.textures.exists(key),
     ),
     decoKeys: Object.keys(TEXTURES).map((key) => `room-deco-${key}`),

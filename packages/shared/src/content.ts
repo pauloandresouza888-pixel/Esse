@@ -97,6 +97,21 @@ export interface CareerDefinition {
   strain: Partial<Record<'energy' | 'fun' | 'social' | 'bladder', number>>;
 }
 
+/**
+ * Skill trained by each career (`chef` -> `cooking`).
+ *
+ * Kept as a standalone table because the world keeps skills keyed by
+ * `SkillId`, not by career id: reading `skills[careerId]` was a real bug that
+ * made every promotion run on a zero skill level.
+ */
+export const CAREER_SKILL: Readonly<Record<CareerId, string>> = {
+  chef: 'cooking',
+  programmer: 'programming',
+  artist: 'paint',
+  mechanic: 'logic',
+  clerk: 'charisma',
+};
+
 export const CAREER_DEFINITIONS: Record<CareerId, CareerDefinition> = {
   chef: {
     id: 'chef',
@@ -437,7 +452,7 @@ export const ITEMS: readonly CatalogItem[] = [
     primaryAction: 'listenMusic',
     actions: ['listenMusic', 'paint'],
     effects: {
-      listenMusic: [{ need: 'fun', amount: 30 }, { need: 'social', amount: 8 }, { need: 'mood', amount: 9 }],
+      listenMusic: [{ need: 'fun', amount: 30 }, { need: 'social', amount: 12 }, { need: 'mood', amount: 9 }],
       paint: [{ need: 'fun', amount: 18 }, { need: 'mood', amount: 6 }],
     },
     durations: { listenMusic: 50, paint: 60 },
@@ -498,6 +513,52 @@ export const ITEMS: readonly CatalogItem[] = [
     placement: 'outdoor',
   },
 ] as const;
+
+/**
+ * Interactions the autonomous AI may start on its own.
+ *
+ * The rule of thumb: an action must be a "need fix" the character would do
+ * without being asked. Social actions (talking), repairs and anything that
+ * spends money stay manual — the player is the one who decides to socialise.
+ * Also used by the UI to show a small "AI" badge on the actions it can pick.
+ */
+export const AI_INTERACTIONS: readonly InteractionId[] = [
+  'sleep',
+  'nap',
+  'eat',
+  'drinkWater',
+  'cook',
+  'shower',
+  'washHands',
+  'toilet',
+  'relax',
+  'watch',
+  'read',
+  'paint',
+  'code',
+  'exercise',
+  'coffee',
+  'petCat',
+  'listenMusic',
+  'stargaze',
+];
+
+/**
+ * Interactions the catalog offers for an item (primary action first).
+ *
+ * Lives here instead of `simulation.ts` because `content.ts` must not import
+ * the simulation module (the simulation imports the content).
+ */
+export function interactionsFor(itemId: string): InteractionId[] {
+  const item = itemById(itemId);
+  if (!item) return [];
+  const list = [item.primaryAction, ...(item.actions ?? [])];
+  return [...new Set(list)];
+}
+
+export function autoAssignableInteractions(itemId: string): InteractionId[] {
+  return interactionsFor(itemId).filter((interactionId) => AI_INTERACTIONS.includes(interactionId));
+}
 
 export function itemById(id: string): CatalogItem | undefined {
   return ITEMS.find((item) => item.id === id);
@@ -637,6 +698,14 @@ export const ROOM_ART_SIZES: Readonly<Record<string, { w: number; h: number }>> 
   lamp: { w: 46, h: 118 },
   bookshelf: { w: 44, h: 112 },
   cat: { w: 72, h: 40 },
+  catBed: { w: 78, h: 34 },
+  tv: { w: 104, h: 88 },
+  desk: { w: 112, h: 86 },
+  piano: { w: 120, h: 104 },
+  treadmill: { w: 96, h: 96 },
+  mirror: { w: 54, h: 116 },
+  painting: { w: 72, h: 56 },
+  bench: { w: 112, h: 62 },
 };
 
 export const ROOM_PLACEMENTS: readonly RoomPlacement[] = [
@@ -652,7 +721,7 @@ export const ROOM_PLACEMENTS: readonly RoomPlacement[] = [
   // ==== middle (walkable band) ===========================================
   { id: 'item-rug', itemId: 'rug', cell: { x: 1, y: 8 }, footprint: { w: 7, d: 3 }, art: ROOM_ART_SIZES.rug!, scale: 0.86, layer: 'floor', hit: { w: 60, h: 48 }, labelKey: 'items.rug', walkOver: true, flat: true, interactive: false },
   { id: 'item-coffeeTable', itemId: 'coffeeTable', cell: { x: 2, y: 8 }, footprint: { w: 4, d: 2 }, art: ROOM_ART_SIZES.coffeeTable!, scale: 0.8, layer: 'floor', hit: { w: 86, h: 52 }, labelKey: 'items.coffeeTable' },
-  { id: 'item-cat', itemId: 'cat', cell: { x: 9, y: 10 }, footprint: { w: 1, d: 1 }, art: ROOM_ART_SIZES.cat!, scale: 0.8, layer: 'floor', hit: { w: 64, h: 48 }, labelKey: 'items.cat' },
+  { id: 'item-cat', itemId: 'catBed', cell: { x: 9, y: 10 }, footprint: { w: 1, d: 1 }, art: ROOM_ART_SIZES.catBed!, scale: 0.8, layer: 'floor', hit: { w: 64, h: 48 }, labelKey: 'items.catBed' },
 
   // ==== front (frames the bottom of the screen) ==========================
   { id: 'item-sofa', itemId: 'sofa', cell: { x: 0, y: 12 }, footprint: { w: 6, d: 3 }, art: ROOM_ART_SIZES.sofa!, scale: 0.92, layer: 'front', hit: { w: 108, h: 76 }, labelKey: 'items.sofa' },

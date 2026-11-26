@@ -246,3 +246,27 @@
     display: none;
   }
 }
+
+/* Dominant emotion chip: emoji + word, never colour alone. */
+.emotion {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  background: rgba(58, 46, 42, 0.08);
+  color: var(--text-primary);
+  font-weight: 800;
+  font-size: 11px;
+}
+
+.emotion_positive {
+  background: var(--color-mint-soft);
+  color: #23614a;
+}
+
+.emotion_negative {
+  background: #fde8e3;
+  color: #99311c;
+}

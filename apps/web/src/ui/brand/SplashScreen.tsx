@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './SplashScreen.module.css';
+import { publicUrl } from '@/platform/publicUrl';
 
 /**
  * Splash screen.
@@ -38,7 +39,7 @@ export function SplashScreen({ onFinished }: SplashScreenProps) {
     <div className={styles.splash} data-testid="splash">
       <div className={styles.glow} aria-hidden="true" />
       <div className={styles.content}>
-        <img className={styles.logo} src="/brand/logo-full.svg" alt={t('a11y.logo')} width={420} height={300} />
+        <img className={styles.logo} src={publicUrl('brand/logo-full.svg')} alt={t('a11y.logo')} width={420} height={300} />
         <p className={styles.tagline}>{t('brand.tagline')}</p>
         <div
           className={styles.progress}

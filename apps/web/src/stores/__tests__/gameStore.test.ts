@@ -104,3 +104,53 @@ describe('gameStore settings', () => {
     expect(newId).not.toBe(oldId);
   });
 });
+
+
+describe('gameStore store and building', () => {
+  it('debits a purchase, moves it through inventory, and persists placement', () => {
+    useGameStore.getState().createProfile({ displayName: 'Lia' });
+    const initialMoney = useGameStore.getState().save!.world.money;
+    expect(useGameStore.getState().buyFurniture('mirror')).toBe(true);
+    expect(useGameStore.getState().save?.world.money).toBe(initialMoney - 70);
+    expect(useGameStore.getState().save?.world.house.inventory).toEqual(['mirror']);
+
+    expect(useGameStore.getState().placeFurniture('mirror')).toBe(true);
+    const house = useGameStore.getState().save!.world.house;
+    expect(house.inventory).toEqual([]);
+    expect(house.placed).toHaveLength(1);
+    expect(house.placed[0]).toMatchObject({ itemId: 'mirror' });
+
+    useGameStore.getState().unplaceFurniture(house.placed[0]!.id);
+    expect(useGameStore.getState().save?.world.house.inventory).toEqual(['mirror']);
+    expect(useGameStore.getState().save?.world.house.placed).toEqual([]);
+  });
+
+  it('blocks purchases the current balance cannot afford', () => {
+    useGameStore.getState().createProfile({ displayName: 'Nina' });
+    const before = useGameStore.getState().save!;
+    useGameStore.setState({ save: { ...before, world: { ...before.world, money: 399 } } });
+    expect(useGameStore.getState().buyFurniture('piano')).toBe(false);
+    expect(useGameStore.getState().save?.world.money).toBe(399);
+    expect(useGameStore.getState().save?.world.house.inventory).toEqual([]);
+  });
+});
+
+
+describe('gameStore local relationships', () => {
+  it('increments friendship/romance for a local who is on their routine', () => {
+    useGameStore.getState().createProfile({ displayName: 'Ivo' });
+    // New saves begin at 07:00; Mia is scheduled in the plaza then.
+    const friendship = useGameStore.getState().interactWithNpc('mia', 'talk');
+    expect(friendship).toEqual({ friendship: 8, romance: 0, interactions: 1 });
+    const romance = useGameStore.getState().interactWithNpc('mia', 'flirt');
+    expect(romance).toEqual({ friendship: 11, romance: 6, interactions: 2 });
+  });
+
+  it('does not interact with an NPC who is at home or unknown', () => {
+    useGameStore.getState().createProfile({ displayName: 'Jo' });
+    const current = useGameStore.getState().save!;
+    useGameStore.setState({ save: { ...current, world: { ...current.world, clock: { ...current.world.clock, totalMs: 23 * 3_600_000 } } } });
+    expect(useGameStore.getState().interactWithNpc('mia', 'talk')).toBeNull();
+    expect(useGameStore.getState().interactWithNpc('missing', 'talk')).toBeNull();
+  });
+});
