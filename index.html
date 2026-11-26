@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curva de Spee & Curva de Wilson — Explicação Interativa 🦷</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --azul:#2563eb; --roxo:#7c3aed; --verde:#059669; --vermelho:#dc2626;
+    --fundo:#eef2ff; --card:#ffffff; --texto:#1e293b; --suave:#64748b;
+  }
+  body{ font-family:'Segoe UI', system-ui, sans-serif; background:var(--fundo); color:var(--texto); line-height:1.6; }
+  header{
+    background:linear-gradient(135deg,var(--azul),var(--roxo)); color:#fff;
+    padding:48px 20px 56px; text-align:center;
+  }
+  header h1{ font-size:clamp(1.7rem,5vw,2.8rem); margin-bottom:10px; }
+  header p{ font-size:clamp(1rem,2.5vw,1.2rem); opacity:.92; max-width:680px; margin:0 auto; }
+  main{ max-width:920px; margin:-28px auto 60px; padding:0 16px; }
+  .card{
+    background:var(--card); border-radius:18px; padding:28px;
+    box-shadow:0 8px 30px rgba(30,41,59,.10); margin-bottom:26px;
+  }
+  .card h2{ font-size:1.5rem; margin-bottom:8px; }
+  .card h3{ margin:16px 0 6px; }
+  .tag{
+    display:inline-block; font-size:.78rem; font-weight:700; letter-spacing:.06em;
+    text-transform:uppercase; padding:4px 12px; border-radius:999px; color:#fff; margin-bottom:12px;
+  }
+  .tag.spee{ background:var(--azul); } .tag.wilson{ background:var(--roxo); }
+  .tag.quiz{ background:var(--verde); } .tag.bonus{ background:#d97706; }
+  .analogia{
+    background:#fffbeb; border-left:5px solid #f59e0b; border-radius:10px;
+    padding:14px 18px; margin:16px 0; font-size:1.05rem;
+  }
+  .analogia b{ color:#b45309; }
+  svg{ width:100%; height:auto; display:block; background:#f8fafc; border-radius:14px; }
+  .controle{ margin-top:18px; }
+  .controle label{ font-weight:600; display:flex; justify-content:space-between; margin-bottom:6px; }
+  .controle label output{ color:var(--azul); font-weight:800; }
+  input[type=range]{ width:100%; height:10px; accent-color:var(--azul); cursor:pointer; }
+  .wilson-range{ accent-color:var(--roxo) !important; }
+  .status{
+    margin-top:14px; padding:14px 18px; border-radius:12px; font-size:1.02rem;
+    background:#eff6ff; border:1.5px solid #bfdbfe; transition:.25s;
+  }
+  .status.ruim{ background:#fef2f2; border-color:#fecaca; }
+  .status.bom{ background:#ecfdf5; border-color:#a7f3d0; }
+  .botoes{ display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+  button{
+    border:none; border-radius:999px; padding:11px 22px; font-size:1rem; font-weight:700;
+    cursor:pointer; color:#fff; background:var(--roxo); transition:.2s;
+  }
+  button:hover{ transform:translateY(-2px); filter:brightness(1.1); }
+  button:active{ transform:scale(.97); }
+  .grade{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px; }
+  @media(max-width:640px){ .grade{ grid-template-columns:1fr; } }
+  .mini{ background:#f8fafc; border-radius:12px; padding:16px 18px; }
+  .mini h4{ margin-bottom:4px; }
+  .quiz-q{ margin:20px 0; }
+  .quiz-q p{ font-weight:700; margin-bottom:10px; }
+  .opcao{
+    display:block; width:100%; text-align:left; background:#f1f5f9; color:var(--texto);
+    border:2px solid transparent; border-radius:12px; padding:12px 16px; margin:7px 0;
+    font-size:1rem; font-weight:500; cursor:pointer;
+  }
+  .opcao:hover{ background:#e2e8f0; transform:none; filter:none; }
+  .opcao.certa{ background:#dcfce7; border-color:var(--verde); }
+  .opcao.errada{ background:#fee2e2; border-color:var(--vermelho); }
+  .feedback{ font-size:.95rem; margin-top:6px; min-height:1.4em; font-weight:600; }
+  #placar{
+    text-align:center; font-size:1.15rem; font-weight:800; padding:16px;
+    border-radius:12px; background:#ecfdf5; border:1.5px solid #a7f3d0; display:none;
+  }
+  .resumo{
+    background:linear-gradient(135deg,#eff6ff,#f5f3ff); border-radius:14px;
+    padding:20px 22px; font-size:1.06rem;
+  }
+  .resumo li{ margin:8px 0 8px 20px; }
+  footer{ text-align:center; color:var(--suave); padding:10px 20px 40px; font-size:.9rem; }
+  .dica{ color:var(--suave); font-size:.92rem; margin-top:8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🦷 Curva de Spee &amp; Curva de Wilson</h1>
+  <p>Sem decoreba: <b>mexa nos controles</b>, veja os dentes se moverem e entenda de uma vez por todas.</p>
+</header>
+
+<main>
+
+  <!-- INTRO -->
+  <section class="card">
+    <h2>🤔 Primeiro: por que os dentes não são "retinhos"?</h2>
+    <p>Se você olhar uma arcada dentária de verdade, vai perceber que as pontas dos dentes
+    <b>não formam uma linha reta</b> — elas formam <b>curvas suaves</b>. E não é por acaso:
+    essas curvas fazem a mastigação funcionar sem os dentes "baterem" uns nos outros do jeito errado.</p>
+    <p style="margin-top:10px">São duas curvas principais, e a diferença entre elas é só <b>de onde você está olhando</b>:</p>
+    <div class="grade">
+      <div class="mini"><h4>🔵 Curva de Spee</h4><p>Vista <b>de LADO</b> (perfil) 👤➡️</p></div>
+      <div class="mini"><h4>🟣 Curva de Wilson</h4><p>Vista <b>de FRENTE</b> 😐⬅️</p></div>
+    </div>
+    <div class="analogia">💡 <b>Truque para nunca mais confundir:</b>
+      <b>S</b>pee = <b>S</b>agital = <b>S</b>orriso visto de lado &nbsp;•&nbsp;
+      <b>W</b>ilson = de frente, os dentes de baixo formam uma tigela 🥣
+    </div>
+  </section>
+
+  <!-- SPEE -->
+  <section class="card">
+    <span class="tag spee">Curva 1 · de lado</span>
+    <h2>🔵 Curva de Spee — o "sorriso" dos dentes</h2>
+    <p>Olhe a arcada <b>inferior</b> de perfil e ligue as pontinhas (cúspides) dos dentes, do canino até os molares:
+    forma-se uma curva <b>côncava para cima</b> — igualzinha a um <b>sorriso</b> 😊 ou ao fundo de uma <b>calha</b>.</p>
+
+    <div class="analogia">🎢 <b>Imagine uma montanha-russa vista de lado:</b> ela desce dos dentes da frente,
+    faz uma "barriga" no meio e sobe de novo nos molares do fundo. Isso é a Curva de Spee.</div>
+
+    <svg id="svgSpee" viewBox="0 0 700 330" aria-label="Curva de Spee vista de lado"></svg>
+
+    <div class="controle">
+      <label>🎚️ Mexa aqui: profundidade da curva <output id="speeValor"></output></label>
+      <input type="range" id="speeSlider" min="-20" max="60" value="15">
+      <p class="dica">← invertida / reta &nbsp;&nbsp;|&nbsp;&nbsp; profunda →</p>
+    </div>
+    <div class="status" id="speeStatus"></div>
+
+    <h3>Para que serve?</h3>
+    <p>Quando você morde e desliza a mandíbula para frente, os dentes de trás precisam <b>desencostar</b>
+    (quem guia são os da frente). A curva ajuda nesse deslizamento suave e distribui a força da mordida ao longo da arcada.</p>
+    <p style="margin-top:8px">📏 Em uma boca equilibrada, a profundidade é pequena: cerca de <b>1 a 2 mm</b>.
+    Na ortodontia, "nivelar a curva de Spee" (deixá-la mais plana com o aparelho) é uma etapa clássica do tratamento —
+    e isso <b>ocupa espaço</b> na arcada, algo que o ortodontista calcula.</p>
+  </section>
+
+  <!-- WILSON -->
+  <section class="card">
+    <span class="tag wilson">Curva 2 · de frente</span>
+    <h2>🟣 Curva de Wilson — a "tigela" dos dentes</h2>
+    <p>Agora olhe a boca <b>de frente</b>, cortando na altura dos molares. Os molares <b>inferiores são inclinados
+    para dentro</b> (em direção à língua 👅) e os <b>superiores para fora</b> (em direção à bochecha).
+    Ligando as pontinhas: embaixo forma-se uma <b>tigela</b> (côncava para cima) e em cima uma <b>cúpula</b> (convexa para baixo) —
+    as duas se encaixam como <b>tigela e tampa</b>.</p>
+
+    <div class="analogia">🥣 <b>Pense numa tigela com tampa:</b> a tigela (dentes de baixo) segura a comida sobre a língua,
+    e a tampa (dentes de cima) fecha por cima. É a Curva de Wilson.</div>
+
+    <svg id="svgWilson" viewBox="0 0 700 360" aria-label="Curva de Wilson vista de frente"></svg>
+
+    <div class="controle">
+      <label>🎚️ Mexa aqui: inclinação dos molares <output id="wilsonValor"></output></label>
+      <input type="range" id="wilsonSlider" class="wilson-range" min="0" max="25" value="15">
+    </div>
+    <div class="status" id="wilsonStatus"></div>
+
+    <div class="botoes">
+      <button id="btnMastigar">▶ Testar: mover a mandíbula para o lado</button>
+    </div>
+    <p class="dica">Teste com a inclinação no 0 e depois com ela alta — veja a diferença! 👀</p>
+
+    <h3>Para que serve?</h3>
+    <p>Quando você mastiga, a mandíbula não faz só "abre e fecha": ela também <b>desliza para os lados</b>.
+    Graças à Wilson, as cúspides <b>deslizam umas sobre as outras sem travar nem bater</b> (sem "interferências").
+    E tem mais: a inclinação joga a comida de volta para cima dos dentes e para a língua — que empurra o alimento de volta. Um ciclo perfeito! 🔄</p>
+  </section>
+
+  <!-- BONUS -->
+  <section class="card">
+    <span class="tag bonus">Bônus</span>
+    <h2>🌐 Juntando as duas: a Esfera de Monson</h2>
+    <p>Spee (de lado) + Wilson (de frente) são, na verdade, <b>dois cortes da mesma coisa</b>:
+    imagine uma <b>bola gigante</b> (cerca de 20 cm de diâmetro) apoiada sobre os dentes — as pontas de todos eles tocam
+    essa esfera. Essa ideia é usada principalmente em <b>próteses (dentaduras)</b>, onde o dentista monta os dentes
+    artificiais seguindo essas curvas — as chamadas <b>curvas de compensação</b> — para a dentadura não descolar quando a pessoa mastiga.</p>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="card">
+    <span class="tag quiz">Teste rápido</span>
+    <h2>🧠 Será que você entendeu? Clique nas respostas!</h2>
+    <div id="quiz"></div>
+    <div id="placar"></div>
+  </section>
+
+  <!-- RESUMO -->
+  <section class="card">
+    <h2>⚡ Resumo de 10 segundos</h2>
+    <div class="resumo">
+      <ul>
+        <li><b>Spee</b> = de <b>lado</b> 👀 — os dentes de baixo formam um <b>sorriso</b> (côncavo para cima). Profundidade normal: ~1–2 mm.</li>
+        <li><b>Wilson</b> = de <b>frente</b> 👀 — os molares de baixo inclinam para a <b>língua</b> e formam uma <b>tigela</b>; os de cima, a tampa.</li>
+        <li><b>Juntas</b>, elas permitem mastigar e deslizar a mandíbula <b>sem os dentes baterem errado</b> — e importam para aparelho ortodôntico, próteses e reabilitação oral.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer>Feito para estudar odontologia de um jeito leve 🦷✨ — volte e mexa nos controles quantas vezes quiser!</footer>
+
+<script>
+// ---------- utilidades ----------
+const NS = 'http://www.w3.org/2000/svg';
+function el(nome, attrs, pai){
+  const e = document.createElementNS(NS, nome);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  if(pai) pai.appendChild(e);
+  return e;
+}
+function dente(pai, x, y, rot, cor, escala=1){
+  // dente simples de perfil: coroa + raiz, ponta da cúspide em (0,-34)
+  const g = el('g', { transform:`translate(${x},${y}) rotate(${rot}) scale(${escala})` }, pai);
+  el('path', { d:'M-13,-34 L13,-34 L10,-8 L6,26 L2,8 L-2,26 L-6,8 L-10,-8 Z',
+    fill:cor, stroke:'#94a3b8', 'stroke-width':1.6, 'stroke-linejoin':'round' }, g);
+  return g;
+}
+
+// ---------- CURVA DE SPEE ----------
+const svgSpee = document.getElementById('svgSpee');
+const W=700;
+el('text',{x:20,y:28,'font-size':15,fill:'#64748b','font-weight':700}, svgSpee).textContent='👈 dentes da FRENTE';
+el('text',{x:520,y:28,'font-size':15,fill:'#64748b','font-weight':700}, svgSpee).textContent='dentes do FUNDO 👉';
+const speeDentes = el('g',{}, svgSpee);
+const speeLinha  = el('path',{fill:'none',stroke:'#2563eb','stroke-width':3.5,'stroke-linecap':'round'}, svgSpee);
+const speePlano  = el('line',{stroke:'#94a3b8','stroke-width':1.8,'stroke-dasharray':'7 6'}, svgSpee);
+const speeMedida = el('g',{}, svgSpee);
+
+const X0=90, X1=610, YTOP=110; // pontas dos dentes da frente/fundo ficam perto de YTOP
+function desenhaSpee(prof){ // prof em "mm" (pode ser negativa)
+  speeDentes.innerHTML=''; speeMedida.innerHTML='';
+  const n=8, pts=[];
+  for(let i=0;i<n;i++){
+    const t=i/(n-1);
+    const x=X0+(X1-X0)*t;
+    // curva quadrática: desce no meio conforme a profundidade
+    const y=YTOP + 4*prof*6*t*(1-t);
+    pts.push([x,y]);
+    dente(speeDentes, x, y+34, 0, i<2 ? '#fde68a' : '#ffffff', i<2?0.85:1);
+  }
+  const meio=pts[Math.floor(n/2)];
+  speeLinha.setAttribute('d', `M${pts[0][0]},${pts[0][1]} Q${meio[0]},${YTOP+2*prof*6} ${pts[n-1][0]},${pts[n-1][1]}`);
+  speePlano.setAttribute('x1',X0-30); speePlano.setAttribute('x2',X1+30);
+  speePlano.setAttribute('y1',YTOP);  speePlano.setAttribute('y2',YTOP);
+  // seta de medida no meio
+  const mx=(X0+X1)/2;
+  el('line',{x1:mx+40,y1:YTOP,x2:mx+40,y2:meio[1],stroke:'#dc2626','stroke-width':2.5}, speeMedida);
+  const rotulo = el('text',{x:mx+52,y:(YTOP+meio[1])/2+5,'font-size':15,fill:'#dc2626','font-weight':800}, speeMedida);
+  rotulo.textContent = Math.abs(prof).toFixed(1).replace('.',',')+' mm';
+  el('text',{x:mx+52,y:YTOP-8,'font-size':12,fill:'#64748b'}, speeMedida).textContent='plano reto';
+}
+
+const speeSlider=document.getElementById('speeSlider'),
+      speeValor=document.getElementById('speeValor'),
+      speeStatus=document.getElementById('speeStatus');
+function atualizaSpee(){
+  const prof = speeSlider.value/10; // -2,0 .. 6,0 mm
+  desenhaSpee(prof);
+  speeValor.textContent = (prof>0?'+':'') + prof.toFixed(1).replace('.',',') + ' mm';
+  let msg, classe='status ';
+  if(prof < -0.3){ msg='🔄 <b>Curva INVERTIDA:</b> a "montanha-russa" ficou de cabeça para baixo! Isso pode travar os movimentos da mandíbula. Não é o padrão saudável.'; classe+='ruim'; }
+  else if(prof <= 0.5){ msg='➖ <b>Curva PLANA (reta):</b> dentes alinhados como uma régua. Pode parecer "certinho", mas perde-se a ajuda da curva nos deslizamentos da mandíbula.'; classe+=''; }
+  else if(prof <= 2.5){ msg='😊 <b>Curva NORMAL:</b> um "sorriso" suave de 1–2 mm. É assim na maioria das bocas equilibradas — perfeita!'; classe+='bom'; }
+  else { msg='🎢 <b>Curva PROFUNDA:</b> a "barriga" está funda demais! Comum em mordidas profundas — o aparelho ortodôntico costuma nivelá-la, e isso exige espaço na arcada.'; classe+='ruim'; }
+  speeStatus.className=classe; speeStatus.innerHTML=msg;
+}
+speeSlider.addEventListener('input', atualizaSpee);
+atualizaSpee();
+
+// ---------- CURVA DE WILSON ----------
+const svgWilson = document.getElementById('svgWilson');
+el('text',{x:26,y:30,'font-size':15,fill:'#64748b','font-weight':700}, svgWilson).textContent='bochecha 👉';
+el('text',{x:586,y:30,'font-size':15,fill:'#64748b','font-weight':700}, svgWilson).textContent='👈 bochecha';
+const lingua = el('ellipse',{cx:350,cy:318,rx:95,ry:30,fill:'#fda4af',stroke:'#f43f5e','stroke-width':1.5}, svgWilson);
+el('text',{x:350,y:324,'text-anchor':'middle','font-size':15,fill:'#9f1239','font-weight':700}, svgWilson).textContent='👅 LÍNGUA';
+const grupoCima = el('g',{}, svgWilson); // arcada superior (vai deslizar no teste)
+const wilsonBaixo = el('g',{}, svgWilson);
+const wilsonLinhaB = el('path',{fill:'none',stroke:'#7c3aed','stroke-width':3.5,'stroke-linecap':'round'}, svgWilson);
+const wilsonLinhaC = el('path',{fill:'none',stroke:'#f59e0b','stroke-width':3.5,'stroke-linecap':'round'}, svgWilson);
+const avisoChoque = el('text',{x:350,y:185,'text-anchor':'middle','font-size':17,fill:'#dc2626','font-weight':800, opacity:0}, svgWilson);
+avisoChoque.textContent='💥 CHOQUE! As cúspides estão batendo!';
+
+function molarFrente(pai,x,y,rot,inferior,distanciaCentro){
+  // molar de frente: coroa larga com 2 cúspides; retorna posição das cúspides
+  const g=el('g',{transform:`translate(${x},${y}) rotate(${rot})`},pai);
+  const dir = inferior?1:-1;
+  const d = inferior
+    ? 'M-26,0 L26,0 L20,16 L8,44 L3,18 L-3,44 L-8,16 Z'      // raízes para baixo
+    : 'M-26,0 L26,0 L20,-16 L8,-44 L3,-18 L-3,-44 L-8,-16 Z'; // raízes para cima
+  el('path',{d, fill:'#ffffff', stroke:'#94a3b8','stroke-width':1.6,'stroke-linejoin':'round'},g);
+  // cúspides (pontinhas superiores do molar inferior / inferiores do superior)
+  const rad = rot*Math.PI/180;
+  const local = [[-16,0],[16,0]];
+  return local.map(([lx,ly])=>{
+    const rx = x + lx*Math.cos(rad) - ly*Math.sin(rad);
+    const ry = y + lx*Math.sin(rad) + ly*Math.cos(rad);
+    el('circle',{cx:rx,cy:ry,r:5,fill: inferior?'#7c3aed':'#f59e0b'},pai);
+    return [rx,ry];
+  });
+}
+
+let angWilson = 15;
+function desenhaWilson(deslize=0){
+  grupoCima.innerHTML=''; wilsonBaixo.innerHTML='';
+  // inferiores: inclinam para a língua (centro). Esq: +ang | Dir: -ang
+  const bE = molarFrente(wilsonBaixo, 180, 250,  angWilson, true);
+  const bD = molarFrente(wilsonBaixo, 520, 250, -angWilson, true);
+  wilsonLinhaB.setAttribute('d', `M${bE[0][0]},${bE[0][1]} Q350,${250 - angWilson*4.4} ${bD[1][0]},${bD[1][1]}`);
+  // superiores: inclinam para a bochecha. Ficam acima, deslocáveis
+  const gx = deslize;
+  const cE = molarFrente(grupoCima, 180+gx, 178, -angWilson, false);
+  const cD = molarFrente(grupoCima, 520+gx, 178,  angWilson, false);
+  wilsonLinhaC.setAttribute('d', `M${cE[0][0]},${cE[0][1]} Q${350+gx},${178 + angWilson*4.4} ${cD[1][0]},${cD[1][1]}`);
+}
+
+const wilsonSlider=document.getElementById('wilsonSlider'),
+      wilsonValor=document.getElementById('wilsonValor'),
+      wilsonStatus=document.getElementById('wilsonStatus');
+function atualizaWilson(){
+  angWilson = +wilsonSlider.value;
+  desenhaWilson();
+  wilsonValor.textContent = angWilson + '°';
+  let msg, classe='status ';
+  if(angWilson < 4){ msg='➖ <b>Sem inclinação (Wilson "apagada"):</b> molares retos como postes. Clique em "Testar movimento" e veja: as cúspides <b>batem</b> quando a mandíbula desliza! 💥'; classe+='ruim'; }
+  else if(angWilson <= 20){ msg='🥣 <b>Wilson PRESENTE:</b> tigela embaixo, tampa em cima. Teste o movimento lateral: as cúspides deslizam suaves, sem bater. É esse o padrão saudável!'; classe+='bom'; }
+  else { msg='⚠️ <b>Inclinação EXAGERADA:</b> molares "deitados" demais também atrapalham — a força da mordida cai fora do eixo do dente. Equilíbrio é tudo!'; classe+='ruim'; }
+  wilsonStatus.className=classe; wilsonStatus.innerHTML=msg;
+}
+wilsonSlider.addEventListener('input', atualizaWilson);
+atualizaWilson();
+
+// animação do movimento lateral
+let animando=false;
+document.getElementById('btnMastigar').addEventListener('click', ()=>{
+  if(animando) return; animando=true;
+  const inicio=performance.now(), dur=2600;
+  (function passo(agora){
+    const t=(agora-inicio)/dur;
+    if(t>=1){ desenhaWilson(0); avisoChoque.setAttribute('opacity',0); animando=false; return; }
+    const deslize = Math.sin(t*Math.PI*4)*34; // vai e volta 2x
+    desenhaWilson(deslize);
+    // sem Wilson, as cúspides colidem no deslizamento
+    avisoChoque.setAttribute('opacity', (angWilson<4 && Math.abs(deslize)>16) ? 1 : 0);
+    requestAnimationFrame(passo);
+  })(inicio);
+});
+
+// ---------- QUIZ ----------
+const perguntas=[
+  { p:'1️⃣ De onde olhamos para ver a Curva de Spee?',
+    ops:['De frente','De lado (perfil)','De cima'],
+    certa:1, pq:'Isso! Spee = vista lateral (sagital), como um sorriso 😊.' },
+  { p:'2️⃣ Nos dentes INFERIORES, a Curva de Spee normal é...',
+    ops:['Côncava para cima (um "sorriso")','Convexa para cima (uma "colina")','Totalmente reta'],
+    certa:0, pq:'Exato! Côncava para cima, com ~1–2 mm de profundidade 🎢.' },
+  { p:'3️⃣ Na Curva de Wilson, os molares inferiores inclinam para...',
+    ops:['A bochecha','A língua','Não inclinam nunca'],
+    certa:1, pq:'Perfeito! Para a língua 👅 — formando a "tigela" 🥣.' },
+  { p:'4️⃣ Para que servem essas curvas, no fim das contas?',
+    ops:['Só estética','Permitir mastigar e deslizar a mandíbula sem os dentes baterem errado','Deixar os dentes mais brancos'],
+    certa:1, pq:'Mandou bem! Função acima de tudo: deslizamento suave e forças bem distribuídas 💪.' },
+];
+const quizDiv=document.getElementById('quiz');
+let acertos=0, respondidas=0;
+perguntas.forEach((q,qi)=>{
+  const bloco=document.createElement('div'); bloco.className='quiz-q';
+  bloco.innerHTML=`<p>${q.p}</p>`;
+  const fb=document.createElement('div'); fb.className='feedback';
+  q.ops.forEach((op,oi)=>{
+    const b=document.createElement('button'); b.className='opcao'; b.textContent=op;
+    b.onclick=()=>{
+      if(bloco.dataset.pronto) return; bloco.dataset.pronto=1; respondidas++;
+      if(oi===q.certa){ b.classList.add('certa'); fb.textContent='✅ '+q.pq; fb.style.color='#059669'; acertos++; }
+      else{
+        b.classList.add('errada');
+        bloco.querySelectorAll('.opcao')[q.certa].classList.add('certa');
+        fb.textContent='❌ Quase! '+q.pq; fb.style.color='#dc2626';
+      }
+      if(respondidas===perguntas.length){
+        const placar=document.getElementById('placar'); placar.style.display='block';
+        placar.textContent = acertos===perguntas.length
+          ? `🏆 Você acertou ${acertos}/${perguntas.length}! Agora Spee e Wilson não têm mais segredo pra você! 🦷✨`
+          : `🎉 Você acertou ${acertos}/${perguntas.length}! Volte nos desenhos, mexa nos controles e tente de novo!`;
+      }
+    };
+    bloco.appendChild(b);
+  });
+  bloco.appendChild(fb); quizDiv.appendChild(bloco);
+});
+</script>
+</body>
+</html>
