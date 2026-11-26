@@ -47,7 +47,10 @@ jobs:
           path: apps/web/dist
 
   deploy:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/arena/14e72dea-esse'
+    # The repository's protected github-pages environment only allows main.
+    # Feature branches still run the full build/test job; publishing happens
+    # after their changes are merged through the normal review path.
+    if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     environment:
