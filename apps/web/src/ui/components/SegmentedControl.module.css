@@ -1,0 +1,32 @@
+.wrapper {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(58, 46, 42, 0.06);
+  border: 1px solid var(--color-line);
+}
+
+.option {
+  flex: 1;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.option:active {
+  transform: scale(0.98);
+}
+
+.selected {
+  background: var(--bg-surface-strong);
+  color: var(--color-coral-dark);
+  box-shadow: var(--shadow-sm);
+}

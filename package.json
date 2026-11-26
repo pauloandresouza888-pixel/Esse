@@ -1,0 +1,23 @@
+{
+  "name": "vida-online",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Vida Online - life simulation game for mobile browsers (React + Phaser + PWA)",
+  "type": "module",
+  "packageManager": "pnpm@12.23.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @vida/web dev",
+    "build": "pnpm --filter @vida/web build",
+    "preview": "pnpm --filter @vida/web preview",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "icons": "pnpm --filter @vida/web icons",
+    "check": "pnpm typecheck && pnpm test && pnpm build"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

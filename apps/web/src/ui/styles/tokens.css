@@ -1,0 +1,117 @@
+@import '@fontsource-variable/nunito/index.css';
+@import '@fontsource-variable/fredoka/index.css';
+
+/**
+ * Design tokens.
+ *
+ * The palette is intentionally warm and low-contrast for comfort at night, but
+ * text colors stay at WCAG AA contrast on their surfaces. Colors are exposed as
+ * custom properties so the color-blind mode and future themes only override
+ * variables.
+ */
+:root {
+  /* Brand */
+  --color-coral: #ff7a59;
+  --color-coral-dark: #e05f40;
+  --color-coral-soft: #ffe2d8;
+  --color-sun: #f7c568;
+  --color-sun-soft: #fff1d6;
+  --color-mint: #7fc8a9;
+  --color-mint-soft: #dff3e9;
+  --color-lilac: #a78bdb;
+  --color-lilac-soft: #eee7fb;
+  --color-sky: #7cb8e4;
+  --color-sky-soft: #e2f1fb;
+
+  /* Neutrals */
+  --color-ink: #3a2e2a;
+  --color-ink-soft: #6e5f58;
+  --color-ink-faint: #a2948c;
+  --color-cream: #fff8ef;
+  --color-paper: #ffffff;
+  --color-sand: #f6ead9;
+  --color-line: rgba(58, 46, 42, 0.1);
+
+  /* Semantic */
+  --bg-app: #fff4e6;
+  --bg-surface: #fffdf8;
+  --bg-surface-strong: #ffffff;
+  --text-primary: var(--color-ink);
+  --text-secondary: var(--color-ink-soft);
+  --text-muted: var(--color-ink-faint);
+  --accent: var(--color-coral);
+
+  /* Type scale (rem, 16px base) */
+  --font-display: 'Fredoka Variable', 'Fredoka', 'Nunito Variable', system-ui, sans-serif;
+  --font-body: 'Nunito Variable', 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+
+  /* Spacing (4px grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Radii */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+
+  /* Elevation: soft, warm shadows instead of gray/black */
+  --shadow-sm: 0 2px 8px rgba(122, 84, 62, 0.08);
+  --shadow-md: 0 8px 24px rgba(122, 84, 62, 0.12);
+  --shadow-lg: 0 18px 42px rgba(122, 84, 62, 0.18);
+  --shadow-accent: 0 10px 24px rgba(255, 122, 89, 0.32);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 160ms;
+  --dur-base: 260ms;
+  --dur-slow: 460ms;
+
+  /* Layout */
+  --app-max-width: 520px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --tap-min: 44px;
+
+  color-scheme: light;
+}
+
+/* Large text accessibility option scales the whole UI from the root. */
+html[data-large-text='true'] {
+  font-size: 18px;
+}
+
+/* Reduced motion: kill non-essential animation everywhere. */
+html[data-reduced-motion='true'] *,
+html[data-reduced-motion='true'] *::before,
+html[data-reduced-motion='true'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

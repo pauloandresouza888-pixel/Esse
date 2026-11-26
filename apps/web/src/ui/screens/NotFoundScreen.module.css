@@ -1,0 +1,20 @@
+.wrapper {
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.logo {
+  animation: float-soft 3.4s var(--ease-in-out) infinite;
+}
+
+.title {
+  font-size: var(--text-3xl);
+  color: var(--color-coral);
+}
+
+.body {
+  color: var(--text-secondary);
+  max-width: 30ch;
+}

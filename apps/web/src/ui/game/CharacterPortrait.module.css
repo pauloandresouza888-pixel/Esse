@@ -1,0 +1,16 @@
+.portrait {
+  position: relative;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(160deg, #fff4e4, #ffe3d3);
+  border: 3px solid #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.12) translateY(4%);
+}

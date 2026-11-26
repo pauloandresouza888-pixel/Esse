@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1"
+    />
+    <meta name="description" content="Vida Online — um jogo relaxante de simulação de vida para o seu celular." />
+    <meta name="theme-color" content="#FF7A59" />
+    <meta name="color-scheme" content="light" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Vida Online" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- O vite-plugin-pwa injeta o <link rel="manifest"> no build. -->
+    <link rel="preload" as="image" href="/brand/logo-full.svg" />
+    <title>Vida Online</title>
+
+    <!--
+      First paint happens before React is parsed: the static splash below avoids
+      a white flash on slow phones and gives the PWA something to show instantly.
+    -->
+    <style>
+      html,
+      body,
+      #root {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #fff4e6;
+        overscroll-behavior: none;
+        -webkit-tap-highlight-color: transparent;
+        font-family: 'Nunito Variable', system-ui, sans-serif;
+      }
+      #boot-splash {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(circle at 50% 30%, #ffe9d2 0%, #fff4e6 60%, #ffe7df 100%);
+        z-index: 9999;
+        transition: opacity 320ms ease;
+      }
+      #boot-splash img {
+        width: min(64vw, 260px);
+        height: auto;
+        animation: boot-float 2.4s ease-in-out infinite;
+      }
+      #boot-splash.boot-hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      @keyframes boot-float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div id="boot-splash" aria-hidden="true">
+      <img src="/brand/logo-full.svg" alt="" />
+    </div>
+    <noscript>Ative o JavaScript para jogar Vida Online.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

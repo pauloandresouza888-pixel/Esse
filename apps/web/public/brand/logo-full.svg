@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 300" fill="none" role="img" aria-label="Vida Online">
+  <defs>
+    <linearGradient id="roof" x1="150" y1="60" x2="300" y2="150" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF9B73" />
+      <stop offset="1" stop-color="#F2653F" />
+    </linearGradient>
+    <linearGradient id="wall" x1="160" y1="140" x2="280" y2="230" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFDF6" />
+      <stop offset="1" stop-color="#FFEBD2" />
+    </linearGradient>
+    <linearGradient id="door" x1="200" y1="170" x2="240" y2="230" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8FD6B5" />
+      <stop offset="1" stop-color="#5FB894" />
+    </linearGradient>
+    <linearGradient id="title" x1="180" y1="248" x2="360" y2="248" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F2653F" />
+      <stop offset="1" stop-color="#E05F40" />
+    </linearGradient>
+  </defs>
+  <ellipse cx="220" cy="232" rx="92" ry="12" fill="#E9C9AE" opacity="0.5" />
+  <rect x="268" y="70" width="24" height="44" rx="10" fill="#E05F40" />
+  <path d="M222 56c9-14 30-11 30 6 0 14-16 24-30 35-14-11-30-21-30-35 0-17 21-20 30-6Z" fill="#FFC2CC" />
+  <rect x="156" y="120" width="132" height="108" rx="22" fill="url(#wall)" />
+  <path d="M222 60 322 138c5 4 3 11-4 11H126c-7 0-9-7-4-11L222 60Z" fill="url(#roof)" />
+  <path d="M222 60 322 138c5 4 3 11-4 11H126c-7 0-9-7-4-11L222 60Z" fill="#FFFFFF" opacity="0.14" />
+  <path d="M206 228v-46a18 18 0 0 1 36 0v46" fill="url(#door)" />
+  <circle cx="232" cy="196" r="3.2" fill="#FFF6E6" />
+  <circle cx="176" cy="156" r="11" fill="#9CCFEF" stroke="#FFFBEF" stroke-width="5" />
+  <circle cx="268" cy="156" r="11" fill="#9CCFEF" stroke="#FFFBEF" stroke-width="5" />
+  <text x="222" y="272" text-anchor="middle" font-family="Fredoka, Nunito, system-ui, sans-serif" font-size="40" font-weight="600" fill="url(#title)">Vida Online</text>
+</svg>
